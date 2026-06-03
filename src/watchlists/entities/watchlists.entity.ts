@@ -16,14 +16,8 @@ export class Watchlist {
   @Column()
   tmdbMovieId!: number;
 
-  @ManyToOne(
-    () => User,
-    (user) => user.watchlist,
-    {
-      onDelete: 'CASCADE',
-    },
-  )
-  user!: User;
+@ManyToOne(() => User)
+user!: User;
 
   @CreateDateColumn()
   createdAt!: Date;

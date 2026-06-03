@@ -28,8 +28,9 @@ export class Review {
   @Column()
   tmdbMovieId!: number;
 
-  @ManyToOne(() => User)
-  user!: User;
+@ManyToOne(() => User)
+user!: User;
+
 
   @CreateDateColumn()
   createdAt!: Date;

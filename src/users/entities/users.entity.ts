@@ -62,12 +62,5 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany(() => Review, (review) => review.user)
-reviews!: Review[];
 
-@OneToMany(
-  () => Watchlist,
-  (watchlist) => watchlist.user,
-)
-watchlist!: Watchlist[];
 }
