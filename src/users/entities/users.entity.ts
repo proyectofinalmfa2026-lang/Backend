@@ -15,6 +15,9 @@ export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @Column()
+  name!: string;
+
   @Column({
     unique: true,
   })
@@ -61,6 +64,4 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
-
-
 }
