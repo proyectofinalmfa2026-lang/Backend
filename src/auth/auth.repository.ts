@@ -18,9 +18,35 @@ export class AuthRepository {
     });
   }
 
+  async findUserByEmailWithPassword(email: string) {
+    return await this.usersRepository.findOne({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        username: true,
+        email: true,
+        password: true,
+        googleId: true,
+        avatar: true,
+        bio: true,
+        role: true,
+        isPremium: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+  }
+
   async findUserByUsername(username: string) {
     return await this.usersRepository.findOne({
       where: { username },
+    });
+  }
+
+  async findUserByGoogleId(googleId: string) {
+    return await this.usersRepository.findOne({
+      where: { googleId },
     });
   }
 
@@ -35,5 +61,32 @@ export class AuthRepository {
     });
 
     return await this.usersRepository.save(newUser);
+  }
+
+  async createGoogleUser(googleUserData: {
+    googleId: string;
+    email: string;
+    name: string;
+    username: string;
+    avatar?: string;
+  }) {
+    const { googleId, email, name, username, avatar } = googleUserData;
+
+    const newUser = this.usersRepository.create({
+      googleId,
+      email,
+      name,
+      username,
+      avatar,
+      password: null,
+      role: 'user',
+      isPremium: false,
+    });
+
+    return await this.usersRepository.save(newUser);
+  }
+
+  async saveUser(user: User) {
+    return await this.usersRepository.save(user);
   }
 }

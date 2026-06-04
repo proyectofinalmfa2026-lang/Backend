@@ -4,9 +4,9 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 
-import { OneToMany } from 'typeorm';
 import { Review } from '../../reviews/entities/reviews.entity';
 import { Watchlist } from '../../watchlists/entities/watchlists.entity';
 
@@ -29,25 +29,30 @@ export class User {
   email!: string;
 
   @Column({
+    type: 'varchar',
     select: false,
-  })
-  password!: string;
-
-  @Column({
     nullable: true,
   })
-  googleId!: string;
+  password!: string | null;
 
   @Column({
+    type: 'varchar',
+    nullable: true,
+    unique: true,
+  })
+  googleId!: string | null;
+
+  @Column({
+    type: 'varchar',
     nullable: true,
   })
-  avatar!: string;
+  avatar!: string | null;
 
   @Column({
     type: 'text',
     nullable: true,
   })
-  bio!: string;
+  bio!: string | null;
 
   @Column({
     default: 'user',
@@ -64,4 +69,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews!: Review[];
+
+  @OneToMany(() => Watchlist, (watchlist) => watchlist.user)
+  watchlists!: Watchlist[];
 }
