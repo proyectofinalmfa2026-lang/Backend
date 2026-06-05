@@ -15,23 +15,25 @@ export class ReviewsController {
     private readonly reviewsService: ReviewsService,
   ) {}
 
-  @Get()
-  findAll() {
-    return this.reviewsService.findAll();
-  }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.reviewsService.findOne(Number(id));
-  }
+ @Get(':id')
+findOne(@Param('id') id: string) {
+  return this.reviewsService.findOne(id);
+}
 
   @Post()
   create(@Body() body: any) {
     return this.reviewsService.create(body);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.reviewsService.remove(Number(id));
-  }
+  @Get()
+findAll() {
+  return this.reviewsService.findAll();
+}
+
+@Delete(':id')
+remove(@Param('id') id: string) {
+  return this.reviewsService.remove(id);
+}
+
 }

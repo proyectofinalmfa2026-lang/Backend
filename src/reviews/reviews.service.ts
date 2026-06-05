@@ -1,43 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
-
 import { Review } from './entities/reviews.entity';
 
 @Injectable()
 export class ReviewsService {
   constructor(
     @InjectRepository(Review)
-    private reviewsRepository: Repository<Review>,
+    private readonly reviewRepository: Repository<Review>,
   ) {}
 
-  findAll() {
-    return this.reviewsRepository.find({
-  relations: {
-    user: true,
-  },
-});
+  findOne(id: string) {
+    return this.reviewRepository.findOne({
+      where: { id },
+    });
   }
 
-  findOne(id: number) {
-    return this.reviewsRepository.findOne({
-  where: { id },
-  relations: {
-    user: true,
-  },
-});
-  }
+ findAll() {
+  return this.reviewRepository.find({
+    relations: {
+      movie: true,
+      user: true,
+    },
+  });
+}
 
   create(review: Partial<Review>) {
-    return this.reviewsRepository.save(review);
+    return this.reviewRepository.save(review);
   }
 
-  async remove(id: number) {
-    await this.reviewsRepository.delete(id);
-
-    return {
-      message: 'Review eliminada',
-    };
+  async remove(id: string) {
+    return this.reviewRepository.delete(id);
   }
 }

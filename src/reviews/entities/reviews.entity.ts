@@ -7,30 +7,29 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { Movie } from '../../movies/entities/movies.entity';
 import { User } from '../../users/entities/users.entity';
 
-@Entity('reviews')
+@Entity()
 export class Review {
-  @PrimaryGeneratedColumn()
-  id!: number;
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
+
+  @Column()
+  rating!: number;
 
   @Column('text')
-  content!: string;
+  comment!: string;
 
-  @Column()
-  score!: number;
-
-  @Column({
-    default: false,
+  @ManyToOne(() => Movie, (movie) => movie.reviews, {
+    onDelete: 'CASCADE',
   })
-  spoiler!: boolean;
+  movie!: Movie;
 
-  @Column()
-  tmdbMovieId!: number;
-
-@ManyToOne(() => User)
-user!: User;
-
+  @ManyToOne(() => User, {
+    onDelete: 'CASCADE',
+  })
+  user!: User;
 
   @CreateDateColumn()
   createdAt!: Date;
