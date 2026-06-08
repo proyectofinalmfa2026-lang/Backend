@@ -10,25 +10,37 @@ import {
 import { Movie } from '../../movies/entities/movies.entity';
 import { User } from '../../users/entities/users.entity';
 
-@Entity()
+@Entity('reviews')
 export class Review {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column({
+    type: 'int',
+  })
   rating!: number;
 
-  @Column('text')
+  @Column({
+    type: 'text',
+  })
   comment!: string;
 
-  @ManyToOne(() => Movie, (movie) => movie.reviews, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => Movie,
+    (movie) => movie.reviews,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   movie!: Movie;
 
-  @ManyToOne(() => User, {
-    onDelete: 'CASCADE',
-  })
+  @ManyToOne(
+    () => User,
+    (user) => user.reviews,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
   user!: User;
 
   @CreateDateColumn()

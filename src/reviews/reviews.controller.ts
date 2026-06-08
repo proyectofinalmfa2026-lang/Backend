@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 
 import { ReviewsService } from './reviews.service';
+import { CreateReviewDto } from './dto/create-review.dto';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -22,9 +23,11 @@ findOne(@Param('id') id: string) {
 }
 
   @Post()
-  create(@Body() body: any) {
-    return this.reviewsService.create(body);
-  }
+create(
+  @Body() createReviewDto: CreateReviewDto,
+) {
+  return this.reviewsService.create(createReviewDto);
+}
 
   @Get()
 findAll() {
