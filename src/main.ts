@@ -6,6 +6,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -15,22 +19,15 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-  .setTitle('Plataforma Cine API')
-  .setDescription('API para la red social de cine')
-  .setVersion('1.0')
-  .addBearerAuth()
-  .build();
+    .setTitle('Plataforma Cine API')
+    .setDescription('API para la red social de cine')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
 
-const document = SwaggerModule.createDocument(
-  app,
-  config,
-);
+  const document = SwaggerModule.createDocument(app, config);
 
-SwaggerModule.setup(
-  'api',
-  app,
-  document,
-);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(process.env.PORT ?? 3001);
 }
