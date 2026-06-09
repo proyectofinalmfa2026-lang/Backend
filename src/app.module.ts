@@ -8,6 +8,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { WatchlistsModule } from './watchlists/watchlists.module';
 import { MoviesModule } from './movies/movies.module';
 import { CommentsModule } from './comments/comments.module';
+import { LikesModule } from './likes/likes.module';
+
 
 @Module({
   imports: [AuthModule,
@@ -17,6 +19,7 @@ import { CommentsModule } from './comments/comments.module';
     WatchlistsModule,
     MoviesModule,
     CommentsModule,
+    LikesModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -30,6 +33,8 @@ import { CommentsModule } from './comments/comments.module';
         rejectUnauthorized: false,
       },
     }),
+    
+    LikesModule,
   ],
 })
 export class AppModule {}

@@ -11,6 +11,7 @@ import {
 import { Movie } from '../../movies/entities/movies.entity';
 import { User } from '../../users/entities/users.entity';
 import { Comment } from '../../comments/entities/comments.entity';
+import { Like } from '../../likes/entities/likes.entity';
 
 @Entity('reviews')
 export class Review {
@@ -50,6 +51,12 @@ export class Review {
   (comment) => comment.review,
 )
 comments!: Comment[];
+
+@OneToMany(
+  () => Like,
+  (like) => like.review,
+)
+likes!: Like[];
 
   @CreateDateColumn()
   createdAt!: Date;
