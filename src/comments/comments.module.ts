@@ -7,6 +7,7 @@ import { CommentsService } from './comments.service';
 import { Comment } from './entities/comments.entity';
 import { Review } from '../reviews/entities/reviews.entity';
 import { User } from '../users/entities/users.entity';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { User } from '../users/entities/users.entity';
       Review,
       User,
     ]),
+    NotificationsModule,
   ],
   controllers: [CommentsController],
   providers: [CommentsService],
