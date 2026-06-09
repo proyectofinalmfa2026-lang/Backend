@@ -11,6 +11,7 @@ import { AuthRepository } from './auth.repository';
 import { GoogleStrategy } from './strategies/google.strategies';
 
 import { User } from '../users/entities/users.entity';
+import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -30,7 +31,7 @@ import { User } from '../users/entities/users.entity';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, GoogleStrategy],
+  providers: [AuthService, AuthRepository, GoogleStrategy, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
 import { User } from '../users/entities/users.entity';
 import { SignupDto } from './dto/signup.dto';
@@ -50,18 +51,20 @@ export class AuthRepository {
     });
   }
 
-  async createUser(signupDto: SignupDto) {
-    const { name, username, email, password } = signupDto;
+async createUser(signupDto: SignupDto) {
+  const { name, username, email, password } = signupDto;
 
-    const newUser = this.usersRepository.create({
-      name,
-      username,
-      email,
-      password,
-    });
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-    return await this.usersRepository.save(newUser);
-  }
+  const newUser = this.usersRepository.create({
+    name,
+    username,
+    email,
+    password: hashedPassword,
+  });
+
+  return await this.usersRepository.save(newUser);
+}
 
   async createGoogleUser(googleUserData: {
     googleId: string;

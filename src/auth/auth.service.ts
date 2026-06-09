@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
@@ -56,13 +57,20 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
+    // Usuario registrado solo con Google
     if (!user.password) {
       throw new UnauthorizedException(
         'Este usuario debe iniciar sesión con Google',
       );
     }
 
-    if (user.password !== password) {
+    // Comparar contraseña hasheada
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 

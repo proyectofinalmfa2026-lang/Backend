@@ -15,6 +15,7 @@ import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -51,4 +52,10 @@ export class AuthController {
 
     return res.redirect(`${frontendUrl}/auth/success?token=${token}`);
   }
+
+@Get('profile')
+@UseGuards(JwtAuthGuard)
+getProfile(@Req() req: any) {
+  return req.user;
+}
 }
