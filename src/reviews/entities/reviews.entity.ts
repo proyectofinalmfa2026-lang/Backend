@@ -3,12 +3,14 @@ import {
   PrimaryGeneratedColumn,
   Column,
   ManyToOne,
+  OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
 import { Movie } from '../../movies/entities/movies.entity';
 import { User } from '../../users/entities/users.entity';
+import { Comment } from '../../comments/entities/comments.entity';
 
 @Entity('reviews')
 export class Review {
@@ -42,6 +44,12 @@ export class Review {
     },
   )
   user!: User;
+
+  @OneToMany(
+  () => Comment,
+  (comment) => comment.review,
+)
+comments!: Comment[];
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -9,6 +9,7 @@ import {
 
 import { Review } from '../../reviews/entities/reviews.entity';
 import { Watchlist } from '../../watchlists/entities/watchlists.entity';
+import { Comment } from '../../comments/entities/comments.entity';
 
 @Entity('users')
 export class User {
@@ -75,4 +76,10 @@ export class User {
 
   @OneToMany(() => Watchlist, (watchlist) => watchlist.user)
   watchlists!: Watchlist[];
+
+  @OneToMany(
+  () => Comment,
+  (comment) => comment.user,
+)
+comments!: Comment[];
 }

@@ -7,6 +7,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WatchlistsModule } from './watchlists/watchlists.module';
 import { MoviesModule } from './movies/movies.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [AuthModule,
@@ -15,6 +16,7 @@ import { MoviesModule } from './movies/movies.module';
     CloudinaryModule,
     WatchlistsModule,
     MoviesModule,
+    CommentsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
