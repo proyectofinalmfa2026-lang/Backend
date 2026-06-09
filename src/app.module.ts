@@ -9,6 +9,7 @@ import { WatchlistsModule } from './watchlists/watchlists.module';
 import { MoviesModule } from './movies/movies.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { LikesModule } from './likes/likes.module';
     MoviesModule,
     CommentsModule,
     LikesModule,
+    NotificationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

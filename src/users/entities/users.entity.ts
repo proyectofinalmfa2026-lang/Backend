@@ -11,6 +11,7 @@ import { Review } from '../../reviews/entities/reviews.entity';
 import { Watchlist } from '../../watchlists/entities/watchlists.entity';
 import { Comment } from '../../comments/entities/comments.entity';
 import { Like } from '../../likes/entities/likes.entity';
+import { Notification } from '../../notifications/entities/notifications.entity';
 
 @Entity('users')
 export class User {
@@ -89,4 +90,10 @@ comments!: Comment[];
   (like) => like.user,
 )
 likes!: Like[];
+
+@OneToMany(
+  () => Notification,
+  (notification) => notification.user,
+)
+notifications!: Notification[];
 }
