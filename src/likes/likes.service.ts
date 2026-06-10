@@ -1,6 +1,8 @@
+
 import {
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -53,6 +55,28 @@ export class LikesService {
       );
     }
 
+    const existingLike =
+      await this.likeRepository.findOne({
+        where: {
+          user: {
+            id: user.id,
+          },
+          review: {
+            id: review.id,
+          },
+        },
+        relations: {
+          user: true,
+          review: true,
+        },
+      });
+
+    if (existingLike) {
+      throw new BadRequestException(
+        'Ya diste like a esta reseña',
+      );
+    }
+
     const like = new Like();
 
     like.review = review;
@@ -95,3 +119,4 @@ export class LikesService {
     return this.likeRepository.delete(id);
   }
 }
+

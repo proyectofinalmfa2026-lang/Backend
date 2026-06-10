@@ -16,6 +16,11 @@ export class Notification {
   @Column()
   title!: string;
 
+  @Column({
+  default: false,
+})
+isRead!: boolean;
+
   @Column('text')
   message!: string;
 

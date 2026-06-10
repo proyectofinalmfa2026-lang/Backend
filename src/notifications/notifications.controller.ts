@@ -5,6 +5,8 @@ import {
   Delete,
   Param,
   Body,
+  ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 
 import { NotificationsService } from './notifications.service';
@@ -36,6 +38,25 @@ export class NotificationsController {
   findOne(@Param('id') id: string) {
     return this.notificationsService.findOne(id);
   }
+
+  @Get('/user/:userId')
+findByUser(
+  @Param('userId', ParseIntPipe)
+  userId: number,
+) {
+  return this.notificationsService.findByUser(
+    userId,
+  );
+}
+
+@Patch(':id/read')
+markAsRead(
+  @Param('id') id: string,
+) {
+  return this.notificationsService.markAsRead(
+    id,
+  );
+}
 
   @Delete(':id')
   remove(@Param('id') id: string) {

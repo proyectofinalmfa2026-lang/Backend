@@ -10,43 +10,73 @@ import * as bcrypt from 'bcrypt';
 import { SignupDto } from './dto/signup.dto';
 import { SigninDto } from './dto/signin.dto';
 import { AuthRepository } from './auth.repository';
-
+import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly authRepository: AuthRepository,
-    private readonly jwtService: JwtService,
-  ) {}
+  private readonly authRepository: AuthRepository,
+  private readonly jwtService: JwtService,
+  private readonly notificationsService: NotificationsService,
+) {}
 
   async signup(signupDto: SignupDto) {
-    const { username, email, password, confirmPassword } = signupDto;
+  const {
+    username,
+    email,
+    password,
+    confirmPassword,
+  } = signupDto;
 
-    if (password !== confirmPassword) {
-      throw new BadRequestException('Las contraseñas no coinciden');
-    }
-
-    const userByEmail = await this.authRepository.findUserByEmail(email);
-
-    if (userByEmail) {
-      throw new BadRequestException('El email ya está registrado');
-    }
-
-    const userByUsername =
-      await this.authRepository.findUserByUsername(username);
-
-    if (userByUsername) {
-      throw new BadRequestException('El nombre de usuario ya está registrado');
-    }
-
-    const newUser = await this.authRepository.createUser(signupDto);
-
-    const { password: userPassword, ...userWithoutPassword } = newUser;
-
-    return {
-      message: 'Usuario registrado correctamente',
-      user: userWithoutPassword,
-    };
+  if (password !== confirmPassword) {
+    throw new BadRequestException(
+      'Las contraseñas no coinciden',
+    );
   }
+
+  const userByEmail =
+    await this.authRepository.findUserByEmail(
+      email,
+    );
+
+  if (userByEmail) {
+    throw new BadRequestException(
+      'El email ya está registrado',
+    );
+  }
+
+  const userByUsername =
+    await this.authRepository.findUserByUsername(
+      username,
+    );
+
+  if (userByUsername) {
+    throw new BadRequestException(
+      'El nombre de usuario ya está registrado',
+    );
+  }
+
+  const newUser =
+    await this.authRepository.createUser(
+      signupDto,
+    );
+
+  await this.notificationsService.create({
+    title: 'Bienvenido a CineSphere',
+    message:
+      'Tu cuenta fue creada correctamente. Ya puedes comenzar a descubrir películas, publicar reseñas y conectar con otros usuarios.',
+    userId: newUser.id,
+  });
+
+  const {
+    password: userPassword,
+    ...userWithoutPassword
+  } = newUser;
+
+  return {
+    message: 'Usuario registrado correctamente',
+    user: userWithoutPassword,
+  };
+}
 
   async signin(signinDto: SigninDto) {
     const { email, password } = signinDto;

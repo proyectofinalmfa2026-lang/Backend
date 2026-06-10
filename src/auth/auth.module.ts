@@ -12,24 +12,27 @@ import { GoogleStrategy } from './strategies/google.strategies';
 
 import { User } from '../users/entities/users.entity';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+  TypeOrmModule.forFeature([User]),
 
-    PassportModule,
+  PassportModule,
 
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>('JWT_SECRET'),
-        signOptions: {
-          expiresIn: '1h',
-        },
-      }),
+  NotificationsModule,
+
+  JwtModule.registerAsync({
+    imports: [ConfigModule],
+    inject: [ConfigService],
+    useFactory: (configService: ConfigService) => ({
+      secret: configService.get<string>('JWT_SECRET'),
+      signOptions: {
+        expiresIn: '1h',
+      },
     }),
-  ],
+  }),
+],
   controllers: [AuthController],
   providers: [AuthService, AuthRepository, GoogleStrategy, JwtStrategy],
   exports: [AuthService],
