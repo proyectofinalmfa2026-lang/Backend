@@ -1,19 +1,12 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Body,
-} from '@nestjs/common';
-
+import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { WatchlistsService } from './watchlists.service';
 
 @Controller('watchlists')
+@UseGuards(JwtAuthGuard)
 export class WatchlistsController {
-  constructor(
-    private readonly watchlistsService: WatchlistsService,
-  ) {}
+  constructor(private readonly watchlistsService: WatchlistsService) {}
 
   @Get()
   findAll() {
@@ -22,9 +15,7 @@ export class WatchlistsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.watchlistsService.findOne(
-      Number(id),
-    );
+    return this.watchlistsService.findOne(Number(id));
   }
 
   @Post()
@@ -34,8 +25,6 @@ export class WatchlistsController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.watchlistsService.remove(
-      Number(id),
-    );
+    return this.watchlistsService.remove(Number(id));
   }
 }

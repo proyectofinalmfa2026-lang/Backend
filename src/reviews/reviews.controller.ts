@@ -1,42 +1,33 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Delete,
-  Param,
-  Body,
-} from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
 
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('reviews')
 export class ReviewsController {
-  constructor(
-    private readonly reviewsService: ReviewsService,
-  ) {}
+  constructor(private readonly reviewsService: ReviewsService) {}
 
-
- @Get(':id')
-findOne(@Param('id') id: string) {
-  return this.reviewsService.findOne(id);
-}
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.reviewsService.findOne(id);
+  }
 
   @Post()
-create(
-  @Body() createReviewDto: CreateReviewDto,
-) {
-  return this.reviewsService.create(createReviewDto);
-}
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createReviewDto: CreateReviewDto) {
+    return this.reviewsService.create(createReviewDto);
+  }
 
   @Get()
-findAll() {
-  return this.reviewsService.findAll();
-}
+  findAll() {
+    return this.reviewsService.findAll();
+  }
 
-@Delete(':id')
-remove(@Param('id') id: string) {
-  return this.reviewsService.remove(id);
-}
-
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.reviewsService.remove(id);
+  }
 }
