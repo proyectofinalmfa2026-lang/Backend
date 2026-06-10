@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 
 import { User } from '../users/entities/users.entity';
 import { SignupDto } from './dto/signup.dto';
+import { UserRole } from '../users/enums/user-role.enum';
 
 @Injectable()
 export class AuthRepository {
@@ -51,20 +52,22 @@ export class AuthRepository {
     });
   }
 
-async createUser(signupDto: SignupDto) {
-  const { name, username, email, password } = signupDto;
+  async createUser(signupDto: SignupDto) {
+    const { name, username, email, password } = signupDto;
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const newUser = this.usersRepository.create({
-    name,
-    username,
-    email,
-    password: hashedPassword,
-  });
+    const newUser = this.usersRepository.create({
+      name,
+      username,
+      email,
+      password: hashedPassword,
+      role: UserRole.USER,
+      isPremium: false,
+    });
 
-  return await this.usersRepository.save(newUser);
-}
+    return await this.usersRepository.save(newUser);
+  }
 
   async createGoogleUser(googleUserData: {
     googleId: string;
@@ -82,7 +85,7 @@ async createUser(signupDto: SignupDto) {
       username,
       avatar,
       password: null,
-      role: 'user',
+      role: UserRole.USER,
       isPremium: false,
     });
 

@@ -13,6 +13,8 @@ import { Comment } from '../../comments/entities/comments.entity';
 import { Like } from '../../likes/entities/likes.entity';
 import { Notification } from '../../notifications/entities/notifications.entity';
 
+import { UserRole } from '../enums/user-role.enum';
+
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
@@ -58,9 +60,11 @@ export class User {
   bio!: string | null;
 
   @Column({
-    default: 'user',
+    type: 'enum',
+    enum: UserRole,
+    default: UserRole.USER,
   })
-  role!: string;
+  role!: UserRole;
 
   @Column({
     default: false,
@@ -73,27 +77,33 @@ export class User {
   @UpdateDateColumn()
   updatedAt!: Date;
 
-  @OneToMany(() => Review, (review) => review.user)
+  @OneToMany(
+    () => Review,
+    (review) => review.user,
+  )
   reviews!: Review[];
 
-  @OneToMany(() => Watchlist, (watchlist) => watchlist.user)
+  @OneToMany(
+    () => Watchlist,
+    (watchlist) => watchlist.user,
+  )
   watchlists!: Watchlist[];
 
   @OneToMany(
-  () => Comment,
-  (comment) => comment.user,
-)
-comments!: Comment[];
+    () => Comment,
+    (comment) => comment.user,
+  )
+  comments!: Comment[];
 
-@OneToMany(
-  () => Like,
-  (like) => like.user,
-)
-likes!: Like[];
+  @OneToMany(
+    () => Like,
+    (like) => like.user,
+  )
+  likes!: Like[];
 
-@OneToMany(
-  () => Notification,
-  (notification) => notification.user,
-)
-notifications!: Notification[];
+  @OneToMany(
+    () => Notification,
+    (notification) => notification.user,
+  )
+  notifications!: Notification[];
 }
