@@ -9,6 +9,8 @@ import { LikesService } from './likes.service';
 import { User } from '../users/entities/users.entity';
 import { Review } from '../reviews/entities/reviews.entity';
 
+import { NotificationsModule } from '../notifications/notifications.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -16,6 +18,7 @@ import { Review } from '../reviews/entities/reviews.entity';
       User,
       Review,
     ]),
+    NotificationsModule,
   ],
   controllers: [LikesController],
   providers: [LikesService],

@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -10,6 +11,8 @@ import { User } from '../users/entities/users.entity';
 import { Review } from '../reviews/entities/reviews.entity';
 
 import { CreateLikeDto } from './dto/create-like.dto';
+
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class LikesService {
@@ -22,36 +25,52 @@ export class LikesService {
 
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(createLikeDto: CreateLikeDto) {
-  const review = await this.reviewRepository.findOne({
-    where: { id: createLikeDto.reviewId },
-  });
+    const review = await this.reviewRepository.findOne({
+      where: { id: createLikeDto.reviewId },
+      relations: {
+        user: true,
+      },
+    });
 
-  if (!review) {
-    throw new NotFoundException(
-      'Review not found',
-    );
+    if (!review) {
+      throw new NotFoundException(
+        'Review not found',
+      );
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { id: createLikeDto.userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+      );
+    }
+
+    const like = new Like();
+
+    like.review = review;
+    like.user = user;
+
+    const savedLike =
+      await this.likeRepository.save(like);
+
+    if (review.user.id !== user.id) {
+      await this.notificationsService.create({
+        title: 'Nuevo like',
+        message: `${user.username} le dio like a tu reseña`,
+        userId: review.user.id,
+      });
+    }
+
+    return savedLike;
   }
-
-  const user = await this.userRepository.findOne({
-    where: { id: createLikeDto.userId },
-  });
-
-  if (!user) {
-    throw new NotFoundException(
-      'User not found',
-    );
-  }
-
-  const like = new Like();
-
-  like.review = review;
-  like.user = user;
-
-  return this.likeRepository.save(like);
-}
 
   findAll() {
     return this.likeRepository.find({
