@@ -11,6 +11,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 
 import { UsersService } from './users.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('users')
 export class UsersController {
@@ -30,13 +32,10 @@ export class UsersController {
   }
 
   @Post('avatar')
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async uploadAvatar(
-    @UploadedFile() file: any,
-
-  ) {
-    const result =
-      await this.cloudinaryService.uploadImage(file);
+  async uploadAvatar(@UploadedFile() file: any) {
+    const result = await this.cloudinaryService.uploadImage(file);
 
     return result;
   }
