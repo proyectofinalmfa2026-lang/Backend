@@ -31,70 +31,83 @@ export class LikesService {
     private readonly notificationsService: NotificationsService,
   ) {}
 
-  async create(createLikeDto: CreateLikeDto) {
-    const review = await this.reviewRepository.findOne({
-      where: { id: createLikeDto.reviewId },
+  
+async create(createLikeDto: CreateLikeDto) {
+  const review = await this.reviewRepository.findOne({
+    where: { id: createLikeDto.reviewId },
+    relations: {
+      user: true,
+    },
+  });
+
+  if (!review) {
+    throw new NotFoundException(
+      'Review not found',
+    );
+  }
+
+  const user = await this.userRepository.findOne({
+    where: { id: createLikeDto.userId },
+  });
+
+  if (!user) {
+    throw new NotFoundException(
+      'User not found',
+    );
+  }
+
+  const existingLike =
+    await this.likeRepository.findOne({
+      where: {
+        user: {
+          id: user.id,
+        },
+        review: {
+          id: review.id,
+        },
+      },
       relations: {
         user: true,
+        review: true,
       },
     });
 
-    if (!review) {
-      throw new NotFoundException(
-        'Review not found',
-      );
-    }
+  if (existingLike) {
+    await this.likeRepository.remove(
+      existingLike,
+    );
 
-    const user = await this.userRepository.findOne({
-      where: { id: createLikeDto.userId },
-    });
-
-    if (!user) {
-      throw new NotFoundException(
-        'User not found',
-      );
-    }
-
-    const existingLike =
-      await this.likeRepository.findOne({
-        where: {
-          user: {
-            id: user.id,
-          },
-          review: {
-            id: review.id,
-          },
-        },
-        relations: {
-          user: true,
-          review: true,
-        },
-      });
-
-    if (existingLike) {
-      throw new BadRequestException(
-        'Ya diste like a esta reseña',
-      );
-    }
-
-    const like = new Like();
-
-    like.review = review;
-    like.user = user;
-
-    const savedLike =
-      await this.likeRepository.save(like);
-
-    if (review.user.id !== user.id) {
-      await this.notificationsService.create({
-        title: 'Nuevo like',
-        message: `${user.username} le dio like a tu reseña`,
-        userId: review.user.id,
-      });
-    }
-
-    return savedLike;
+    return {
+      liked: false,
+      message: 'Like eliminado',
+    };
   }
+
+  const like = new Like();
+
+  like.review = review;
+  like.user = user;
+
+  const savedLike =
+    await this.likeRepository.save(like);
+
+  if (
+    review.user &&
+    review.user.id !== user.id
+  ) {
+    await this.notificationsService.create({
+      title: 'Nuevo like',
+      message: `${user.username} le dio like a tu reseña`,
+      userId: review.user.id,
+    });
+  }
+
+  return {
+    liked: true,
+    message: 'Like agregado',
+    like: savedLike,
+  };
+}
 
   findAll() {
     return this.likeRepository.find({

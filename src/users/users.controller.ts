@@ -5,6 +5,7 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
+  Req,
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -31,12 +32,29 @@ export class UsersController {
     return this.usersService.findOne(Number(id));
   }
 
-  @Post('avatar')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadAvatar(@UploadedFile() file: any) {
-    const result = await this.cloudinaryService.uploadImage(file);
+@Post('avatar')
+@UseGuards(JwtAuthGuard)
+@UseInterceptors(FileInterceptor('file'))
+async uploadAvatar(
+  @UploadedFile() file: any,
+  @Req() req: any,
+) {
+  const result =
+    await this.cloudinaryService.uploadImage(
+      file,
+    );
 
-    return result;
-  }
+  const updatedUser =
+    await this.usersService.updateAvatar(
+      req.user.id,
+      (result as any).secure_url,
+    );
+
+  return {
+    message: 'Avatar actualizado correctamente',
+    avatar: (result as any).secure_url,
+    user: updatedUser,
+  };
+}
+
 }

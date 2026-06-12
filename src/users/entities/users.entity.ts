@@ -12,6 +12,7 @@ import { Watchlist } from '../../watchlists/entities/watchlists.entity';
 import { Comment } from '../../comments/entities/comments.entity';
 import { Like } from '../../likes/entities/likes.entity';
 import { Notification } from '../../notifications/entities/notifications.entity';
+import { Follower } from '../../followers/entities/followers.entity';
 
 import { UserRole } from '../enums/user-role.enum';
 
@@ -106,4 +107,16 @@ export class User {
     (notification) => notification.user,
   )
   notifications!: Notification[];
+
+  @OneToMany(
+  () => Follower,
+  (follower) => follower.following,
+)
+followers!: Follower[];
+
+@OneToMany(
+  () => Follower,
+  (follower) => follower.follower,
+)
+following!: Follower[];
 }

@@ -10,7 +10,7 @@ import { MoviesModule } from './movies/movies.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { NotificationsModule } from './notifications/notifications.module';
-
+import { FollowersModule } from './followers/followers.module';
 
 @Module({
   imports: [AuthModule,
@@ -22,6 +22,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     CommentsModule,
     LikesModule,
     NotificationsModule,
+    FollowersModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
