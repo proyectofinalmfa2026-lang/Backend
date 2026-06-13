@@ -52,6 +52,16 @@ export class AuthRepository {
     });
   }
 
+  async findUserById(id: number) {
+    return await this.usersRepository.findOne({
+      where: { id },
+      relations: {
+        reviews: true,
+        watchlists: true,
+      },
+    });
+  }
+
   async createUser(signupDto: SignupDto) {
     const { name, username, email, password } = signupDto;
 

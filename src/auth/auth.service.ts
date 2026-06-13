@@ -14,69 +14,69 @@ import { NotificationsService } from '../notifications/notifications.service';
 @Injectable()
 export class AuthService {
   constructor(
-  private readonly authRepository: AuthRepository,
-  private readonly jwtService: JwtService,
-  private readonly notificationsService: NotificationsService,
+    private readonly authRepository: AuthRepository,
+    private readonly jwtService: JwtService,
+    private readonly notificationsService: NotificationsService,
 ) {}
 
   async signup(signupDto: SignupDto) {
-  const {
-    username,
-    email,
-    password,
-    confirmPassword,
-  } = signupDto;
-
-  if (password !== confirmPassword) {
-    throw new BadRequestException(
-      'Las contraseñas no coinciden',
-    );
-  }
-
-  const userByEmail =
-    await this.authRepository.findUserByEmail(
-      email,
-    );
-
-  if (userByEmail) {
-    throw new BadRequestException(
-      'El email ya está registrado',
-    );
-  }
-
-  const userByUsername =
-    await this.authRepository.findUserByUsername(
+    const {
       username,
-    );
+      email,
+      password,
+      confirmPassword,
+    } = signupDto;
 
-  if (userByUsername) {
-    throw new BadRequestException(
-      'El nombre de usuario ya está registrado',
-    );
+    if (password !== confirmPassword) {
+      throw new BadRequestException(
+        'Las contraseñas no coinciden',
+      );
+    }
+
+    const userByEmail =
+      await this.authRepository.findUserByEmail(
+        email,
+      );
+
+    if (userByEmail) {
+      throw new BadRequestException(
+        'El email ya está registrado',
+      );
+    }
+
+    const userByUsername =
+      await this.authRepository.findUserByUsername(
+        username,
+      );
+
+    if (userByUsername) {
+      throw new BadRequestException(
+        'El nombre de usuario ya está registrado',
+      );
+    }
+
+    const newUser =
+      await this.authRepository.createUser(
+        signupDto,
+      );
+
+    await this.notificationsService.create({
+      title: 'Bienvenido a CineSphere',
+      message:
+        'Tu cuenta fue creada correctamente. Ya puedes comenzar a descubrir películas, publicar reseñas y conectar con otros usuarios.',
+      userId: newUser.id,
+    });
+
+    const {
+      password: userPassword,
+      ...userWithoutPassword
+    } = newUser;
+
+    return {
+      message: 'Usuario registrado correctamente',
+      user: userWithoutPassword,
+    };
   }
-
-  const newUser =
-    await this.authRepository.createUser(
-      signupDto,
-    );
-
-  await this.notificationsService.create({
-    title: 'Bienvenido a CineSphere',
-    message:
-      'Tu cuenta fue creada correctamente. Ya puedes comenzar a descubrir películas, publicar reseñas y conectar con otros usuarios.',
-    userId: newUser.id,
-  });
-
-  const {
-    password: userPassword,
-    ...userWithoutPassword
-  } = newUser;
-
-  return {
-    message: 'Usuario registrado correctamente',
-    user: userWithoutPassword,
-  };
-}
 
   async signin(signinDto: SigninDto) {
     const { email, password } = signinDto;
@@ -162,6 +162,44 @@ export class AuthService {
     });
 
     return newUser;
+  }
+
+  async findUserById(id: number) {
+    return await this.authRepository.findUserById(id);
+  }
+
+  async getProfileResponse(id: number) {
+    const user = await this.authRepository.findUserById(id);
+
+    if (!user) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+
+    const avgRating =
+      user.reviews && user.reviews.length > 0
+        ? user.reviews.reduce((sum, r: any) => sum + (r.rating ?? 0), 0) /
+        user.reviews.length
+        : 0;
+
+    return {
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      bio: user.bio,
+      role: user.role,
+      isPremium: user.isPremium,
+      createdAt: user.createdAt,
+      favoriteGenres: [],
+      badges: [],
+      stats: {
+        moviesWatched: user.watchlists?.length ?? 0,
+        reviews: user.reviews?.length ?? 0,
+        lists: 0,
+        avgRating: Math.round(avgRating * 10) / 10,
+      },
+    };
   }
 
   generateJwt(user: any) {

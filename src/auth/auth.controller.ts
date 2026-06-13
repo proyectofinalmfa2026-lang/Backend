@@ -54,11 +54,11 @@ export class AuthController {
     return res.redirect(`${frontendUrl}/auth/success?token=${token}`);
   }
 
-@Get('profile')
-@UseGuards(JwtAuthGuard)
-@ApiBearerAuth()
-getProfile(@Req() req: any) {
-  return req.user;
-}
-
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async getProfile(@Req() req: any) {
+    const result = await this.authService.getProfileResponse(req.user.id);
+    return result;
+  }
 }
