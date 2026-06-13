@@ -62,4 +62,13 @@ markAsRead(
   remove(@Param('id') id: string) {
     return this.notificationsService.remove(id);
   }
+
+  @Post('test-email')
+async testEmail() {
+  return this.notificationsService.create({
+    userId: 7, // tu usuario de prueba
+    title: 'Prueba de Email',
+    message: 'Si recibiste este correo, Gmail SMTP funciona correctamente.',
+  });
+}
 }

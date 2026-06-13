@@ -11,6 +11,7 @@ import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FollowersModule } from './followers/followers.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [AuthModule,
@@ -38,6 +39,7 @@ import { FollowersModule } from './followers/followers.module';
     }),
     
     LikesModule,
+    MailModule,
   ],
 })
 export class AppModule {}

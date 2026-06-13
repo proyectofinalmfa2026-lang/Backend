@@ -11,6 +11,8 @@ import { User } from '../users/entities/users.entity';
 
 import { CreateNotificationDto } from './dto/create-notification.dto';
 import { NotificationsGateway } from './notifications.gateway';
+import { MailService } from '../mail/mail.service';
+
 @Injectable()
 export class NotificationsService {
   constructor(
@@ -21,6 +23,8 @@ export class NotificationsService {
   private readonly userRepository: Repository<User>,
 
   private readonly notificationsGateway: NotificationsGateway,
+
+  private readonly mailService: MailService,
 ) {}
 
   async create(
@@ -60,8 +64,16 @@ if (this.notificationsGateway.server) {
   );
 }
 
+await this.mailService.sendNotificationEmail(
+  user.email,
+  notification.title,
+  notification.message,
+);
+
 return savedNotification;
   }
+
+  
 
   findAll() {
     return this.notificationRepository.find({

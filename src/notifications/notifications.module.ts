@@ -7,12 +7,15 @@ import { User } from '../users/entities/users.entity';
 import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { NotificationsGateway } from './notifications.gateway';
+import { MailModule } from '../mail/mail.module';
+
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       Notification,
       User,
     ]),
+    MailModule,
   ],
   controllers: [NotificationsController],
   providers: [NotificationsService, NotificationsGateway],
