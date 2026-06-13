@@ -33,6 +33,15 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get(':id/profile')
+getProfile(
+  @Param('id') id: string,
+) {
+  return this.usersService.getProfile(
+    Number(id),
+  );
+}
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(Number(id));

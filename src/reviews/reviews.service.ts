@@ -70,6 +70,37 @@ export class ReviewsService {
     );
   }
 
+  findByUser(userId: number) {
+  return this.reviewRepository.find({
+    where: {
+      user: {
+        id: userId,
+      },
+    },
+    relations: {
+      movie: true,
+      user: true,
+    },
+    order: {
+      createdAt: 'DESC',
+    },
+  });
+}
+
+findByMovie(movieId: string) {
+  return this.reviewRepository.find({
+    where: {
+      movie: {
+        id: movieId,
+      },
+    },
+    relations: {
+      movie: true,
+      user: true,
+    },
+  });
+}
+
   findAll() {
     return this.reviewRepository.find({
       relations: {

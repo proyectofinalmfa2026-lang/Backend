@@ -9,6 +9,24 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 export class ReviewsController {
   constructor(private readonly reviewsService: ReviewsService) {}
 
+  @Get('user/:userId')
+  findByUser(
+    @Param('userId') userId: string,
+  ) {
+    return this.reviewsService.findByUser(
+      Number(userId),
+    );
+  }
+
+@Get('movie/:movieId')
+findByMovie(
+  @Param('movieId') movieId: string,
+) {
+  return this.reviewsService.findByMovie(
+    movieId,
+  );
+}
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.reviewsService.findOne(id);
