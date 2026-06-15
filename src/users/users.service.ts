@@ -25,7 +25,56 @@ export class UsersService {
       where: { id },
     });
   }
+ 
+  async getPublicProfile(username: string) {
+  const user = await this.usersRepository.findOne({
+    where: { username },
+  });
 
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const reviewsCount = await this.reviewRepository.count({
+    where: { user: { id: user.id } },
+  });
+
+  const followersCount = await this.followerRepository.count({
+    where: { following: { id: user.id } },
+  });
+
+  const followingCount = await this.followerRepository.count({
+    where: { follower: { id: user.id } },
+  });
+
+  const latestReviews = await this.reviewRepository.find({
+    where: { user: { id: user.id } },
+    order: { createdAt: 'DESC' },
+    take: 5,
+    relations: { movie: true },
+  });
+
+  return {
+    id: user.id,
+    name: user.name,
+    username: user.username,
+    avatar: user.avatar,
+    bio: user.bio,
+    reviewsCount,
+    followersCount,
+    followingCount,
+    latestReviews: latestReviews.map((r) => ({
+      id: r.id,
+      rating: r.rating,
+      comment: r.comment,
+      createdAt: r.createdAt,
+      movie: {
+        id: r.movie.id,
+        title: r.movie.title,
+      },
+    })),
+  };
+}
 
   async getProfile(id: number) {
   const user =

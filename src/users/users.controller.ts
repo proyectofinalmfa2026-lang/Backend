@@ -33,6 +33,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @Get('profile/:username')
+getPublicProfile(@Param('username') username: string) {
+  return this.usersService.getPublicProfile(username);
+}
+
   @Get(':id/profile')
 getProfile(
   @Param('id') id: string,
