@@ -11,19 +11,58 @@ import { User } from '../users/entities/users.entity';
 import { Movie } from '../movies/entities/movies.entity';
 
 import { CreateReviewDto } from './dto/create-review.dto';
+import { Follower } from '../followers/entities/followers.entity';
 
 @Injectable()
 export class ReviewsService {
   constructor(
-    @InjectRepository(Review)
-    private readonly reviewRepository: Repository<Review>,
+  @InjectRepository(Review)
+  private readonly reviewRepository: Repository<Review>,
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>,
+  @InjectRepository(Movie)
+  private readonly movieRepository: Repository<Movie>,
+  @InjectRepository(Follower)
+  private readonly followerRepository: Repository<Follower>,
+) {}
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
 
-    @InjectRepository(Movie)
-    private readonly movieRepository: Repository<Movie>,
-  ) {}
+async getFeed(page: number = 1, limit: number = 10) {
+  const skip = (page - 1) * limit;
+  const [reviews, total] = await this.reviewRepository.findAndCount({
+    relations: { movie: true, user: true },
+    order: { createdAt: 'DESC' },
+    skip,
+    take: limit,
+  });
+  return { reviews, total, page, limit };
+}
+
+async getFollowingFeed(userId: number, page: number = 1, limit: number = 10) {
+  const following = await this.followerRepository.find({
+    where: { follower: { id: userId } },
+    relations: { following: true },
+  });
+
+  if (following.length === 0) {
+    return { reviews: [], total: 0, page, limit };
+  }
+
+  const followingIds = following.map((f) => f.following.id);
+  const skip = (page - 1) * limit;
+
+  const [reviews, total] = await this.reviewRepository
+    .createQueryBuilder('review')
+    .leftJoinAndSelect('review.movie', 'movie')
+    .leftJoinAndSelect('review.user', 'user')
+    .where('user.id IN (:...ids)', { ids: followingIds })
+    .orderBy('review.createdAt', 'DESC')
+    .skip(skip)
+    .take(limit)
+    .getManyAndCount();
+
+  return { reviews, total, page, limit };
+}
 
   async create(
     createReviewDto: CreateReviewDto,

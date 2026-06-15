@@ -7,6 +7,7 @@ import { Movie } from '../movies/entities/movies.entity';
 
 import { ReviewsController } from './reviews.controller';
 import { ReviewsService } from './reviews.service';
+import { Follower } from '../followers/entities/followers.entity';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ReviewsService } from './reviews.service';
       Review,
       User,
       Movie,
+      Follower,
     ]),
   ],
   controllers: [ReviewsController],

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, Req } from '@nestjs/common';
 
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -25,6 +25,24 @@ findByMovie(
   return this.reviewsService.findByMovie(
     movieId,
   );
+}
+
+  @Get('feed/general')
+getFeed(
+  @Query('page') page: string = '1',
+  @Query('limit') limit: string = '10',
+) {
+  return this.reviewsService.getFeed(Number(page), Number(limit));
+}
+
+@Get('feed/following')
+@UseGuards(JwtAuthGuard)
+getFollowingFeed(
+  @Req() req: any,
+  @Query('page') page: string = '1',
+  @Query('limit') limit: string = '10',
+) {
+  return this.reviewsService.getFollowingFeed(req.user.id, Number(page), Number(limit));
 }
 
   @Get(':id')
