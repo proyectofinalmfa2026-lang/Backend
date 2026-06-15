@@ -12,6 +12,8 @@ import { LikesModule } from './likes/likes.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { FollowersModule } from './followers/followers.module';
 import { MailModule } from './mail/mail.module';
+import { ConversationsModule } from './conversations/conversations.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [AuthModule,
@@ -24,6 +26,7 @@ import { MailModule } from './mail/mail.module';
     LikesModule,
     NotificationsModule,
     FollowersModule,
+    ConversationsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
@@ -40,6 +43,7 @@ import { MailModule } from './mail/mail.module';
     
     LikesModule,
     MailModule,
+    MessagesModule,
   ],
 })
 export class AppModule {}
