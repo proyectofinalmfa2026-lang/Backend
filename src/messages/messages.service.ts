@@ -11,29 +11,36 @@ import { Conversation } from '../conversations/entities/conversation.entity';
 import { User } from '../users/entities/users.entity';
 
 import { CreateMessageDto } from './dto/CreateMessageDto';
+import { RealtimeGateway } from '../realtime/realtime.gateway';
 
 @Injectable()
 export class MessagesService {
   constructor(
-    @InjectRepository(Message)
-    private readonly messageRepository: Repository<Message>,
+  @InjectRepository(Message)
+  private readonly messageRepository: Repository<Message>,
 
-    @InjectRepository(Conversation)
-    private readonly conversationRepository: Repository<Conversation>,
+  @InjectRepository(Conversation)
+  private readonly conversationRepository: Repository<Conversation>,
 
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+  @InjectRepository(User)
+  private readonly userRepository: Repository<User>,
+
+  private readonly realtimeGateway: RealtimeGateway,
+) {}
 
   async create(
     createMessageDto: CreateMessageDto,
   ) {
     const conversation =
-      await this.conversationRepository.findOne({
-        where: {
-          id: createMessageDto.conversationId,
-        },
-      });
+    await this.conversationRepository.findOne({
+      where: {
+        id: createMessageDto.conversationId,
+      },
+      relations: {
+        participant1: true,
+        participant2: true,
+      },
+    });
 
     if (!conversation) {
       throw new NotFoundException(
@@ -64,9 +71,22 @@ export class MessagesService {
     message.conversation =
       conversation;
 
-    return this.messageRepository.save(
-      message,
-    );
+    const savedMessage =
+  await this.messageRepository.save(
+    message,
+  );
+
+const receiverId =
+  conversation.participant1.id === sender.id
+    ? conversation.participant2.id
+    : conversation.participant1.id;
+
+this.realtimeGateway.sendMessageToUser(
+  receiverId,
+  savedMessage,
+);
+
+return savedMessage;
   }
 
   findAll() {

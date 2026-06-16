@@ -14,6 +14,7 @@ import { FollowersModule } from './followers/followers.module';
 import { MailModule } from './mail/mail.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { MessagesModule } from './messages/messages.module';
+import { RealtimeModule } from './realtime/realtime.module';
 
 @Module({
   imports: [AuthModule,
@@ -27,6 +28,7 @@ import { MessagesModule } from './messages/messages.module';
     NotificationsModule,
     FollowersModule,
     ConversationsModule,
+    RealtimeModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
