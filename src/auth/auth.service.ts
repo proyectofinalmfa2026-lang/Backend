@@ -203,12 +203,15 @@ export class AuthService {
   }
 
   generateJwt(user: any) {
-    const payload = {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    };
+  const payload = {
+    sub: user.id,
+    email: user.email,
+    role: user.role,
+    isPremium: user.isPremium,
+  };
 
-    return this.jwtService.sign(payload);
-  }
+  return this.jwtService.sign(payload);
 }
+
+
+  }

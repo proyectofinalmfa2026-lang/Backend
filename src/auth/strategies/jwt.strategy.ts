@@ -21,6 +21,7 @@ async validate(payload: any) {
     id: payload.sub,
     email: payload.email,
     role: payload.role,
+    isPremium: payload.isPremium,
   };
 }
 }

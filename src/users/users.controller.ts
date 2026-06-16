@@ -20,6 +20,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PremiumGuard } from '../auth/guards/premium.guard';
 
 @Controller('users')
 export class UsersController {
@@ -45,6 +46,15 @@ getProfile(
   return this.usersService.getProfile(
     Number(id),
   );
+}
+
+    @Get('premium-test')
+@UseGuards(JwtAuthGuard, PremiumGuard)
+@ApiBearerAuth()
+premiumTest() {
+  return {
+    message: 'Bienvenido a CineSphere Premium',
+  };
 }
 
   @Get(':id')
@@ -92,5 +102,7 @@ getProfile(
       user: updatedUser,
     };
   }
+
+
 }
 
