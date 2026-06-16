@@ -125,6 +125,23 @@ export class UsersService {
   };
 }
 
+async updatePremium(
+  id: number,
+  isPremium: boolean,
+) {
+  const user = await this.usersRepository.findOne({
+    where: { id },
+  });
+
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  user.isPremium = isPremium;
+
+  return this.usersRepository.save(user);
+}
+
 async updateAvatar(
   userId: number,
   avatarUrl: string,

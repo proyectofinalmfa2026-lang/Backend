@@ -21,6 +21,11 @@ import { UsersService } from './users.service';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PremiumGuard } from '../auth/guards/premium.guard';
+import { UpdatePremiumDto } from './dto/update-premium.dto';
+import { Patch, Body } from '@nestjs/common';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { UserRole } from './enums/user-role.enum';
 
 @Controller('users')
 export class UsersController {
@@ -61,6 +66,20 @@ premiumTest() {
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(Number(id));
   }
+
+@Patch(':id/premium')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
+@ApiBearerAuth()
+updatePremium(
+  @Param('id') id: string,
+  @Body() updatePremiumDto: UpdatePremiumDto,
+) {
+  return this.usersService.updatePremium(
+    Number(id),
+    updatePremiumDto.isPremium,
+  );
+}
 
   @Post('avatar')
   @UseGuards(JwtAuthGuard)
