@@ -15,6 +15,7 @@ import { MailModule } from './mail/mail.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { MessagesModule } from './messages/messages.module';
 import { RealtimeModule } from './realtime/realtime.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [AuthModule,
@@ -29,6 +30,7 @@ import { RealtimeModule } from './realtime/realtime.module';
     FollowersModule,
     ConversationsModule,
     RealtimeModule,
+    AiModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -3,6 +3,8 @@ import {
   Get,
   Param,
   Post,
+  Patch,
+  Body,
   UploadedFile,
   UseInterceptors,
   Req,
@@ -22,7 +24,6 @@ import { CloudinaryService } from '../cloudinary/cloudinary.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PremiumGuard } from '../auth/guards/premium.guard';
 import { UpdatePremiumDto } from './dto/update-premium.dto';
-import { Patch, Body } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { UserRole } from './enums/user-role.enum';

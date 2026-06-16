@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -29,8 +30,9 @@ export class MessagesService {
 ) {}
 
   async create(
-    createMessageDto: CreateMessageDto,
-  ) {
+  createMessageDto: CreateMessageDto,
+  senderId: number,
+) {
     const conversation =
     await this.conversationRepository.findOne({
       where: {
@@ -49,11 +51,11 @@ export class MessagesService {
     }
 
     const sender =
-      await this.userRepository.findOne({
-        where: {
-          id: createMessageDto.senderId,
-        },
-      });
+  await this.userRepository.findOne({
+    where: {
+      id: senderId,
+    },
+  });
 
     if (!sender) {
       throw new NotFoundException(
@@ -100,17 +102,45 @@ return savedMessage;
   }
 
   async findByConversation(
-    conversationId: string,
-  ) {
-    return this.messageRepository.find({
+  conversationId: string,
+  userId: number,
+) {
+  const conversation =
+    await this.conversationRepository.findOne({
       where: {
-        conversation: {
-          id: conversationId,
-        },
+        id: conversationId,
       },
-      order: {
-        createdAt: 'ASC',
+      relations: {
+        participant1: true,
+        participant2: true,
       },
     });
+
+  if (!conversation) {
+    throw new NotFoundException(
+      'Conversation not found',
+    );
   }
+
+  const isParticipant =
+    conversation.participant1.id === userId ||
+    conversation.participant2.id === userId;
+
+  if (!isParticipant) {
+    throw new ForbiddenException(
+      'You do not have access to this conversation',
+    );
+  }
+
+  return this.messageRepository.find({
+    where: {
+      conversation: {
+        id: conversationId,
+      },
+    },
+    order: {
+      createdAt: 'ASC',
+    },
+  });
+}
 }

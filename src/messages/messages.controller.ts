@@ -4,10 +4,13 @@ import {
   Post,
   Param,
   Body,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/CreateMessageDto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('messages')
 export class MessagesController {
@@ -15,15 +18,17 @@ export class MessagesController {
     private readonly messagesService: MessagesService,
   ) {}
 
-  @Post()
-  create(
-    @Body()
-    createMessageDto: CreateMessageDto,
-  ) {
-    return this.messagesService.create(
-      createMessageDto,
-    );
-  }
+  @UseGuards(JwtAuthGuard)
+@Post()
+create(
+ @Body() dto: CreateMessageDto,
+ @Req() req
+){
+ return this.messagesService.create(
+   dto,
+   req.user.id
+ );
+}
 
   @Get()
   findAll() {
@@ -38,12 +43,15 @@ export class MessagesController {
   }
 
   @Get('conversation/:conversationId')
-  findByConversation(
-    @Param('conversationId')
-    conversationId: string,
-  ) {
-    return this.messagesService.findByConversation(
-      conversationId,
-    );
-  }
+@UseGuards(JwtAuthGuard)
+findByConversation(
+  @Param('conversationId')
+  conversationId: string,
+  @Req() req: any,
+) {
+  return this.messagesService.findByConversation(
+    conversationId,
+    req.user.id,
+  );
+}
 }
