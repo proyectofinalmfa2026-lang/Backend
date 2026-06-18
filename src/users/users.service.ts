@@ -20,6 +20,15 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
+  search(query: string) {
+    if (!query) return [];
+    return this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.name ILIKE :query', { query: `%${query}%` })
+      .orWhere('user.username ILIKE :query', { query: `%${query}%` })
+      .getMany();
+  }
+
   findOne(id: number) {
     return this.usersRepository.findOne({
       where: { id },
