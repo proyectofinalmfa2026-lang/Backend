@@ -1,6 +1,6 @@
-import { IsInt } from 'class-validator';
+import { IsUUID } from 'class-validator';
 
 export class CreateWatchlistDto {
-  @IsInt()
-  tmdbMovieId!: number;
+  @IsUUID()
+  movieId!: string;
 }
