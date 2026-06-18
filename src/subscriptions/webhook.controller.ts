@@ -18,6 +18,8 @@ export class WebhookController {
   @Post()
   @HttpCode(200)
   async handleWebhook(@Body() body: any) {
+
+      console.log('WEBHOOK MP BODY:', JSON.stringify(body));
    
     if (body.type !== 'preapproval') return { received: true };
 

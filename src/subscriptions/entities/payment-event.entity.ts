@@ -14,7 +14,7 @@ export class PaymentEvent {
   subscription!: Subscription;
 
   @Column()
-  type!: string; // 'payment', 'cancellation', 'renewal', etc.
+  type!: string; // 'preapproval', 'payment', etc.
 
   @Column()
   mpEventId!: string; // ID del evento en MP
