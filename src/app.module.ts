@@ -17,6 +17,7 @@ import { MessagesModule } from './messages/messages.module';
 import { RealtimeModule } from './realtime/realtime.module';
 import { AiModule } from './ai/ai.module';
 import { SubscriptionsModule } from './subscriptions/subscriptions.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [AuthModule,
@@ -32,7 +33,8 @@ import { SubscriptionsModule } from './subscriptions/subscriptions.module';
     ConversationsModule,
     RealtimeModule,
     AiModule,
-      SubscriptionsModule,
+    AdminModule,
+    SubscriptionsModule,
     ConfigModule.forRoot({
       isGlobal: true,
     }),
