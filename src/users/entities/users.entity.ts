@@ -13,6 +13,7 @@ import { Comment } from '../../comments/entities/comments.entity';
 import { Like } from '../../likes/entities/likes.entity';
 import { Notification } from '../../notifications/entities/notifications.entity';
 import { Follower } from '../../followers/entities/followers.entity';
+import { Subscription } from '../../subscriptions/entities/subscription.entity';
 
 import { UserRole } from '../enums/user-role.enum';
 
@@ -83,6 +84,10 @@ export class User {
     (review) => review.user,
   )
   reviews!: Review[];
+
+  @OneToMany(() => Subscription, (sub) => sub.user)
+subscriptions!: Subscription[];
+
 
   @OneToMany(
     () => Watchlist,

@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { seedPlans } from './subscriptions/seeders/plans.seeder';
+import { DataSource } from 'typeorm';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -17,6 +19,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  const dataSource = app.get(DataSource);
+  await seedPlans(dataSource);
 
   const config = new DocumentBuilder()
     .setTitle('Plataforma Cine API')

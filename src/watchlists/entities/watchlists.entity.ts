@@ -13,8 +13,8 @@ export class Watchlist {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
-  tmdbMovieId!: number;
+  @Column({ nullable: true })
+tmdbMovieId!: number;
 
 @ManyToOne(() => User)
 user!: User;
