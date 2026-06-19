@@ -66,6 +66,21 @@ export class UsersService {
       relations: { movie: true },
     });
 
+    const featuredReviews = await this.reviewRepository.find({
+  where: {
+    user: {
+      id: user.id,
+    },
+    isPinned: true,
+  },
+  relations: {
+    movie: true,
+  },
+  order: {
+    createdAt: 'DESC',
+  },
+});
+
     const watchlistCount = await this.watchlistRepository.count({
       where: { user: { id: user.id } },
     });
@@ -96,6 +111,16 @@ export class UsersService {
       avgRating,
       followersCount,
       followingCount,
+      featuredReviews: featuredReviews.map((r) => ({
+  id: r.id,
+  rating: r.rating,
+  comment: r.comment,
+  createdAt: r.createdAt,
+  movie: {
+    id: r.movie.id,
+    title: r.movie.title,
+  },
+})),
       latestReviews: latestReviews.map((r) => ({
         id: r.id,
         rating: r.rating,
@@ -174,6 +199,79 @@ export class UsersService {
       followingCount,
     };
   }
+
+  async getAdvancedStats(userId: number) {
+  const reviews = await this.reviewRepository.find({
+    where: {
+      user: {
+        id: userId,
+      },
+    },
+    relations: {
+      movie: true,
+    },
+  });
+
+  if (reviews.length === 0) {
+    return {
+      message: 'No reviews available for statistics',
+    };
+  }
+
+  const totalReviews = reviews.length;
+
+  const averageRating =
+    Math.round(
+      (reviews.reduce(
+        (sum, review) => sum + review.rating,
+        0,
+      ) / totalReviews) * 10,
+    ) / 10;
+
+  const genreCount: Record<string, number> = {};
+
+  reviews.forEach((review) => {
+    const genre = review.movie.genre;
+
+    genreCount[genre] =
+      (genreCount[genre] || 0) + 1;
+  });
+
+  const favoriteGenre =
+    Object.entries(genreCount).sort(
+      (a, b) => b[1] - a[1],
+    )[0][0];
+
+  const highestRatedMovie =
+    reviews.reduce((best, current) =>
+      current.rating > best.rating
+        ? current
+        : best,
+    );
+
+  const lowestRatedMovie =
+    reviews.reduce((worst, current) =>
+      current.rating < worst.rating
+        ? current
+        : worst,
+    );
+
+  return {
+    totalReviews,
+    averageRating,
+    favoriteGenre,
+
+    highestRatedMovie: {
+      title: highestRatedMovie.movie.title,
+      rating: highestRatedMovie.rating,
+    },
+
+    lowestRatedMovie: {
+      title: lowestRatedMovie.movie.title,
+      rating: lowestRatedMovie.rating,
+    },
+  };
+}
 
   async updatePremium(id: number, isPremium: boolean) {
     const user = await this.usersRepository.findOne({
