@@ -90,4 +90,28 @@ export class SubscriptionsService {
 
     return { message: 'Suscripción cancelada correctamente' };
   }
+
+  async confirmSubscription(preapprovalId: string) {
+    const subscription = await this.subscriptionRepo.findOne({
+      where: { mpPreapprovalId: preapprovalId },
+      relations: { user: true },
+    });
+    if (!subscription) throw new NotFoundException('Suscripción no encontrada');
+
+    const preapproval = await this.mercadopagoService.getPreapproval(preapprovalId);
+
+    if (preapproval.status === 'authorized') {
+      subscription.status = SubscriptionStatus.ACTIVE;
+      subscription.nextBillingDate = new Date(preapproval.next_payment_date!);
+      await this.subscriptionRepo.save(subscription);
+
+      if (subscription.user) {
+        await this.userRepo.update(subscription.user.id, { isPremium: true });
+      }
+
+      return { message: 'Suscripción activada correctamente' };
+    }
+
+    return { message: `Estado de la suscripción: ${preapproval.status}` };
+  }
 }

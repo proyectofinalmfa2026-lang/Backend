@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Req, UseGuards } from '@nestjs/common';
 import { SubscriptionsService } from './subscriptions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -32,5 +32,10 @@ getMySubscription(@Req() req) {
 @Delete('cancel')
 cancel(@Req() req) {
   return this.subscriptionsService.cancelSubscription(req.user.id);
+}
+
+@Post('confirm/:preapprovalId')
+confirm(@Param('preapprovalId') preapprovalId: string) {
+  return this.subscriptionsService.confirmSubscription(preapprovalId);
 }
 }
