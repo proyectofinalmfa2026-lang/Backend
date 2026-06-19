@@ -4,10 +4,9 @@ import { Repository } from 'typeorm';
 import { Subscription, SubscriptionStatus } from './entities/subscription.entity';
 import { PaymentEvent } from './entities/payment-event.entity';
 import { User } from '../users/entities/users.entity';
-import { MercadopagoService } from './mercadopago.service';
 
-@Controller('webhooks/mercadopago')
-export class WebhookController {
+@Controller('webhooks/stripe')
+export class WebhookStripeController {
   constructor(
     @InjectRepository(Subscription)
     private subscriptionRepo: Repository<Subscription>,
@@ -15,21 +14,25 @@ export class WebhookController {
     private paymentEventRepo: Repository<PaymentEvent>,
     @InjectRepository(User)
     private userRepo: Repository<User>,
-    private mercadopagoService: MercadopagoService,
   ) {}
 
   @Post()
   @HttpCode(200)
   async handleWebhook(@Body() body: any) {
-    console.log('WEBHOOK MP BODY:', JSON.stringify(body));
+    console.log('WEBHOOK STRIPE BODY:', JSON.stringify(body));
 
-    if (body.type !== 'preapproval') return { received: true };
+    const relevantEvents = [
+      'invoice.payment_succeeded',
+      'customer.subscription.updated',
+      'customer.subscription.deleted',
+    ];
+    if (!relevantEvents.includes(body.type)) return { received: true };
 
-    const preapprovalId = body.data?.id;
-    if (!preapprovalId) return { received: true };
+    const stripeSubscriptionId = body.data?.object?.subscription || body.data?.object?.id;
+    if (!stripeSubscriptionId) return { received: true };
 
     const subscription = await this.subscriptionRepo.findOne({
-      where: { mpPreapprovalId: preapprovalId },
+      where: { mpPreapprovalId: stripeSubscriptionId },
       relations: { user: true },
     });
     if (!subscription) return { received: true };
@@ -37,31 +40,22 @@ export class WebhookController {
     const event = this.paymentEventRepo.create({
       subscription,
       type: body.type,
-      mpEventId: String(body.id),
+      mpEventId: body.id,
       payload: body,
       processed: false,
     });
     await this.paymentEventRepo.save(event);
 
-    const preapproval = await this.mercadopagoService.getPreapproval(preapprovalId);
+    const status = body.data?.object?.status;
 
-    if (preapproval.status === 'authorized') {
+    if (body.type === 'invoice.payment_succeeded' && status === 'active') {
       subscription.status = SubscriptionStatus.ACTIVE;
-      subscription.nextBillingDate = new Date(preapproval.next_payment_date!);
-
       if (subscription.user) {
         await this.userRepo.update(subscription.user.id, { isPremium: true });
       }
-    } else if (preapproval.status === 'cancelled') {
+    } else if (body.type === 'customer.subscription.deleted' || status === 'canceled' || status === 'incomplete_expired') {
       subscription.status = SubscriptionStatus.CANCELLED;
       subscription.cancelledAt = new Date();
-
-      if (subscription.user) {
-        await this.userRepo.update(subscription.user.id, { isPremium: false });
-      }
-    } else if (preapproval.status === 'paused') {
-      subscription.status = SubscriptionStatus.EXPIRED;
-
       if (subscription.user) {
         await this.userRepo.update(subscription.user.id, { isPremium: false });
       }

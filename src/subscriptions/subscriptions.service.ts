@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription, SubscriptionStatus } from './entities/subscription.entity';
 import { Plan } from './entities/plan.entity';
+import { User } from '../users/entities/users.entity';
 import { MercadopagoService } from './mercadopago.service';
 import { StripeService } from './stripe.service';
 
@@ -13,6 +14,8 @@ export class SubscriptionsService {
     private subscriptionRepo: Repository<Subscription>,
     @InjectRepository(Plan)
     private planRepo: Repository<Plan>,
+    @InjectRepository(User)
+    private userRepo: Repository<User>,
     private mercadopagoService: MercadopagoService,
     private stripeService: StripeService,
   ) {}
@@ -82,6 +85,8 @@ export class SubscriptionsService {
     subscription.status = SubscriptionStatus.CANCELLED;
     subscription.cancelledAt = new Date();
     await this.subscriptionRepo.save(subscription);
+
+    await this.userRepo.update(userId, { isPremium: false });
 
     return { message: 'Suscripción cancelada correctamente' };
   }

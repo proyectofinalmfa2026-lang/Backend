@@ -8,12 +8,14 @@ import { MercadopagoService } from './mercadopago.service';
 import { SubscriptionsService } from './subscriptions.service';
 import { SubscriptionsController } from './subscriptions.controller';
 import { WebhookController } from './webhook.controller';
+import { WebhookStripeController } from './webhook-stripe.controller';
 import { StripeService } from './stripe.service';
+import { User } from '../users/entities/users.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Plan, Subscription, PaymentEvent]), ConfigModule],
+  imports: [TypeOrmModule.forFeature([Plan, Subscription, PaymentEvent, User]), ConfigModule],
   providers: [SubscriptionsService, MercadopagoService, StripeService],
-  controllers: [SubscriptionsController, WebhookController],
+  controllers: [SubscriptionsController, WebhookController, WebhookStripeController],
   exports: [MercadopagoService, StripeService],
 })
 export class SubscriptionsModule {}
