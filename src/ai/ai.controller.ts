@@ -11,7 +11,7 @@ import { AiService } from './ai.service';
 import { ChatAiDto } from './dto/chat-ai.dto';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { PremiumGuard } from '../auth/guards/premium.guard';
+
 
 
 @ApiTags('AI')
@@ -24,7 +24,6 @@ export class AiController {
   @Post('chat')
   @UseGuards(
     JwtAuthGuard,
-    PremiumGuard,
   )
   @ApiBearerAuth()
   chat(

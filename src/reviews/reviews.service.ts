@@ -147,6 +147,56 @@ export class ReviewsService {
     });
   }
 
+  async pinReview(
+  reviewId: string,
+  userId: number,
+) {
+  const review = await this.reviewRepository.findOne({
+    where: {
+      id: reviewId,
+    },
+    relations: {
+      user: true,
+    },
+  });
+
+  if (!review) {
+    throw new NotFoundException(
+      'Review not found',
+    );
+  }
+
+  if (review.user.id !== userId) {
+    throw new ForbiddenException(
+      'You can only pin your own reviews',
+    );
+  }
+
+  const pinnedCount =
+    await this.reviewRepository.count({
+      where: {
+        user: {
+          id: userId,
+        },
+        isPinned: true,
+      },
+    });
+
+  if (pinnedCount >= 3) {
+    throw new ForbiddenException(
+      'You can only pin up to 3 reviews',
+    );
+  }
+
+  review.isPinned = true;
+
+  await this.reviewRepository.save(review);
+
+  return {
+    message: 'Review pinned successfully',
+  };
+}
+
   async remove(id: string, userId: number, role: string) {
     const review = await this.reviewRepository.findOne({
       where: { id },
@@ -170,4 +220,38 @@ export class ReviewsService {
 
     return this.reviewRepository.delete(id);
   }
+
+  async unpinReview(
+  reviewId: string,
+  userId: number,
+) {
+  const review = await this.reviewRepository.findOne({
+    where: {
+      id: reviewId,
+    },
+    relations: {
+      user: true,
+    },
+  });
+
+  if (!review) {
+    throw new NotFoundException(
+      'Review not found',
+    );
+  }
+
+  if (review.user.id !== userId) {
+    throw new ForbiddenException(
+      'You can only unpin your own reviews',
+    );
+  }
+
+  review.isPinned = false;
+
+  await this.reviewRepository.save(review);
+
+  return {
+    message: 'Review unpinned successfully',
+  };
+}
 }

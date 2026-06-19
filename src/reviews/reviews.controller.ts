@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Delete,
+  Patch,
   Param,
   Body,
   Query,
@@ -13,6 +14,7 @@ import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { PremiumGuard } from '../auth/guards/premium.guard';
 
 @Controller('reviews')
 export class ReviewsController {
@@ -71,4 +73,34 @@ export class ReviewsController {
   remove(@Param('id') id: string, @Req() req: any) {
     return this.reviewsService.remove(id, req.user.id, req.user.role);
   }
+
+  @Patch(':id/pin')
+@UseGuards(
+  JwtAuthGuard,
+  PremiumGuard,
+)
+pinReview(
+  @Param('id') id: string,
+  @Req() req: any,
+) {
+  return this.reviewsService.pinReview(
+    id,
+    req.user.id,
+  );
+}
+
+@Patch(':id/unpin')
+@UseGuards(
+  JwtAuthGuard,
+  PremiumGuard,
+)
+unpinReview(
+  @Param('id') id: string,
+  @Req() req: any,
+) {
+  return this.reviewsService.unpinReview(
+    id,
+    req.user.id,
+  );
+}
 }

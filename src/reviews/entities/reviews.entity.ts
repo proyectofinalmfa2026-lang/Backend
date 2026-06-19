@@ -28,6 +28,11 @@ export class Review {
   })
   comment!: string;
 
+  @Column({
+  default: false,
+})
+isPinned!: boolean;
+
   @ManyToOne(
     () => Movie,
     (movie) => movie.reviews,

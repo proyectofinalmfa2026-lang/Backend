@@ -61,6 +61,17 @@ export class UsersController {
     };
   }
 
+  @Get('advanced-stats')
+@UseGuards(JwtAuthGuard, PremiumGuard)
+@ApiBearerAuth()
+getAdvancedStats(
+  @Req() req: any,
+) {
+  return this.usersService.getAdvancedStats(
+    req.user.id,
+  );
+}
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(Number(id));
