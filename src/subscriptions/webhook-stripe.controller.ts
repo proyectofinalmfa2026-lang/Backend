@@ -22,13 +22,12 @@ export class WebhookStripeController {
     console.log('WEBHOOK STRIPE BODY:', JSON.stringify(body));
 
     const relevantEvents = [
-      'invoice.payment_succeeded',
       'customer.subscription.updated',
       'customer.subscription.deleted',
     ];
     if (!relevantEvents.includes(body.type)) return { received: true };
 
-    const stripeSubscriptionId = body.data?.object?.subscription || body.data?.object?.id;
+    const stripeSubscriptionId = body.data?.object?.id;
     if (!stripeSubscriptionId) return { received: true };
 
     const subscription = await this.subscriptionRepo.findOne({
@@ -48,12 +47,12 @@ export class WebhookStripeController {
 
     const status = body.data?.object?.status;
 
-    if (body.type === 'invoice.payment_succeeded' && status === 'active') {
+    if (status === 'active' || status === 'trialing') {
       subscription.status = SubscriptionStatus.ACTIVE;
       if (subscription.user) {
         await this.userRepo.update(subscription.user.id, { isPremium: true });
       }
-    } else if (body.type === 'customer.subscription.deleted' || status === 'canceled' || status === 'incomplete_expired') {
+    } else if (status === 'canceled' || status === 'incomplete_expired' || status === 'past_due') {
       subscription.status = SubscriptionStatus.CANCELLED;
       subscription.cancelledAt = new Date();
       if (subscription.user) {

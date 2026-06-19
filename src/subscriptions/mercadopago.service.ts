@@ -27,10 +27,11 @@ export class MercadopagoService {
         currency_id: 'ARS',
         },
         back_url: `${this.configService.get('FRONTEND_URL')}/subscription/result`,
+        notification_url: `${this.configService.get('API_URL')}/webhooks/mercadopago`,
         payer_email: data.userEmail,
         external_reference: data.userId,
         status: 'pending',
-      },
+      } as any,
     });
 
     return {
