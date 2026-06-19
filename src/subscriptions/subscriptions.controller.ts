@@ -38,4 +38,9 @@ cancel(@Req() req) {
 confirm(@Param('preapprovalId') preapprovalId: string) {
   return this.subscriptionsService.confirmSubscription(preapprovalId);
 }
+
+@Post('confirm-stripe/:subscriptionId')
+confirmStripe(@Param('subscriptionId') subscriptionId: string) {
+  return this.subscriptionsService.confirmStripeSubscription(subscriptionId);
+}
 }

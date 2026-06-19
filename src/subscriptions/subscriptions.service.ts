@@ -114,4 +114,27 @@ export class SubscriptionsService {
 
     return { message: `Estado de la suscripción: ${preapproval.status}` };
   }
+
+  async confirmStripeSubscription(stripeSubscriptionId: string) {
+    const subscription = await this.subscriptionRepo.findOne({
+      where: { mpPreapprovalId: stripeSubscriptionId },
+      relations: { user: true },
+    });
+    if (!subscription) throw new NotFoundException('Suscripción no encontrada');
+
+    const stripeSub = await this.stripeService.getSubscription(stripeSubscriptionId);
+
+    if (stripeSub.status === 'active' || stripeSub.status === 'trialing') {
+      subscription.status = SubscriptionStatus.ACTIVE;
+      await this.subscriptionRepo.save(subscription);
+
+      if (subscription.user) {
+        await this.userRepo.update(subscription.user.id, { isPremium: true });
+      }
+
+      return { message: 'Suscripción activada correctamente' };
+    }
+
+    return { message: `Estado de la suscripción: ${stripeSub.status}` };
+  }
 }
