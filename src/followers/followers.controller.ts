@@ -5,10 +5,11 @@ import {
   Param,
   Body,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 
 import { FollowersService } from './followers.service';
-
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateFollowerDto } from './dto/create-follower.dto';
 
 @Controller('followers')
@@ -18,10 +19,11 @@ export class FollowersController {
   ) {}
 
   @Post()
-  create(
-    @Body()
-    createFollowerDto: CreateFollowerDto,
-  ) {
+@UseGuards(JwtAuthGuard)
+create(
+  @Body()
+  createFollowerDto: CreateFollowerDto,
+) {
     return this.followersService.create(
       createFollowerDto,
     );
@@ -56,7 +58,8 @@ export class FollowersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+@UseGuards(JwtAuthGuard)
+remove(@Param('id') id: string) {
     return this.followersService.remove(id);
   }
 }

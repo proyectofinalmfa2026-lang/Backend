@@ -30,12 +30,14 @@ create(
  );
 }
 
-  @Get()
-  findAll() {
-    return this.messagesService.findAll();
-  }
+  @UseGuards(JwtAuthGuard)
+@Get()
+findAll() {
+  return this.messagesService.findAll();
+}
 
-  @Get(':id')
+  @UseGuards(JwtAuthGuard)
+@Get(':id')
   findOne(
     @Param('id') id: string,
   ) {

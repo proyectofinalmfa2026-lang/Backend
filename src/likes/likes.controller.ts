@@ -5,10 +5,12 @@ import {
   Delete,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('likes')
 export class LikesController {
@@ -17,9 +19,10 @@ export class LikesController {
   ) {}
 
   @Post()
-  create(
-    @Body() createLikeDto: CreateLikeDto,
-  ) {
+@UseGuards(JwtAuthGuard)
+create(
+  @Body() createLikeDto: CreateLikeDto,
+) {
     return this.likesService.create(
       createLikeDto,
     );
@@ -36,7 +39,8 @@ export class LikesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+@UseGuards(JwtAuthGuard)
+remove(@Param('id') id: string) {
     return this.likesService.remove(id);
   }
 }

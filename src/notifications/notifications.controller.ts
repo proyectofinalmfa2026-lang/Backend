@@ -7,10 +7,11 @@ import {
   Body,
   ParseIntPipe,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
 
 import { NotificationsService } from './notifications.service';
-
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateNotificationDto } from './dto/create-notification.dto';
 
 @Controller('notifications')
@@ -20,7 +21,8 @@ export class NotificationsController {
   ) {}
 
   @Post()
-  create(
+@UseGuards(JwtAuthGuard)
+create(
     @Body()
     createNotificationDto: CreateNotificationDto,
   ) {
@@ -50,6 +52,7 @@ findByUser(
 }
 
 @Patch(':id/read')
+@UseGuards(JwtAuthGuard)
 markAsRead(
   @Param('id') id: string,
 ) {
@@ -59,11 +62,13 @@ markAsRead(
 }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+@UseGuards(JwtAuthGuard)
+remove(@Param('id') id: string) {
     return this.notificationsService.remove(id);
   }
 
   @Post('test-email')
+@UseGuards(JwtAuthGuard)
 async testEmail() {
   return this.notificationsService.create({
     userId: 7, // tu usuario de prueba

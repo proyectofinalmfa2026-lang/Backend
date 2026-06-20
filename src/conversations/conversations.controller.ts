@@ -4,10 +4,12 @@ import {
   Get,
   Param,
   Body,
+  UseGuards,
 } from '@nestjs/common';
 
 import { ConversationsService } from './conversations.service';
 import { CreateConversationDto } from './DTO/CreateConversationDto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('conversations')
 export class ConversationsController {
@@ -16,10 +18,11 @@ export class ConversationsController {
   ) {}
 
   @Post()
-  create(
-    @Body()
-    createConversationDto: CreateConversationDto,
-  ) {
+@UseGuards(JwtAuthGuard)
+create(
+  @Body()
+  createConversationDto: CreateConversationDto,
+) {
     return this.conversationsService.create(
       createConversationDto,
     );
