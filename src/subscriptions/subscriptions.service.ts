@@ -44,12 +44,20 @@ export class SubscriptionsService {
     const plan = await this.planRepo.findOneBy({ name: 'premium' });
     if (!plan) throw new NotFoundException('Plan premium no encontrado');
 
-    const customer = await this.stripeService.createCustomer(userEmail, userName);
+    let customer, stripeSubscription;
+    try {
+      customer = await this.stripeService.createCustomer(userEmail, userName);
+      console.log('STRIPE CUSTOMER:', customer.id);
 
-    const stripeSubscription = await this.stripeService.createSubscription(
-      customer.id,
-      process.env.STRIPE_PRICE_ID!,
-    );
+      stripeSubscription = await this.stripeService.createSubscription(
+        customer.id,
+        process.env.STRIPE_PRICE_ID!,
+      );
+      console.log('STRIPE SUBSCRIPTION:', stripeSubscription.id, 'STATUS:', stripeSubscription.status);
+    } catch (err: any) {
+      console.error('STRIPE ERROR:', err.type, err.message, err.raw?.message);
+      throw err;
+    }
 
     const subscription = this.subscriptionRepo.create({
       user: { id: userId } as any,
