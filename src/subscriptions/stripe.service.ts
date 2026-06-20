@@ -21,7 +21,6 @@ export class StripeService {
       customer: customerId,
       items: [{ price: priceId }],
       payment_behavior: 'default_incomplete',
-      expand: ['latest_invoice.payment_intent'],
     });
   }
 
@@ -31,6 +30,15 @@ export class StripeService {
 
   async getSubscription(subscriptionId: string): Promise<any> {
     return this.stripe.subscriptions.retrieve(subscriptionId);
+  }
+
+  async getPaymentIntentClientSecret(subscriptionId: string): Promise<string | null> {
+    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId, {
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    const invoice = subscription.latest_invoice as any;
+    return invoice?.payment_intent?.client_secret ?? null;
   }
 
   constructWebhookEvent(payload: Buffer, signature: string, secret: string): any {

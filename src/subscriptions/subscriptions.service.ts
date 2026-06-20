@@ -67,10 +67,10 @@ export class SubscriptionsService {
     });
     await this.subscriptionRepo.save(subscription);
 
-    const invoice = stripeSubscription.latest_invoice as any;
+    const clientSecret = await this.stripeService.getPaymentIntentClientSecret(stripeSubscription.id);
     return {
       subscriptionId: stripeSubscription.id,
-      clientSecret: invoice?.payment_intent?.client_secret,
+      clientSecret,
     };
   }
 
