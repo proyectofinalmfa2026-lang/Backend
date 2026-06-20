@@ -1,7 +1,10 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Subscription, SubscriptionStatus } from './entities/subscription.entity';
+import {
+  Subscription,
+  SubscriptionStatus,
+} from './entities/subscription.entity';
 import { Plan } from './entities/plan.entity';
 import { User } from '../users/entities/users.entity';
 import { MercadopagoService } from './mercadopago.service';
@@ -24,10 +27,11 @@ export class SubscriptionsService {
     const plan = await this.planRepo.findOneBy({ name: 'premium' });
     if (!plan) throw new NotFoundException('Plan premium no encontrado');
 
-    const { preapprovalId, initPoint } = await this.mercadopagoService.createPreapproval({
-      userId: String(userId),
-      userEmail,
-    });
+    const { preapprovalId, initPoint } =
+      await this.mercadopagoService.createPreapproval({
+        userId: String(userId),
+        userEmail,
+      });
 
     const subscription = this.subscriptionRepo.create({
       user: { id: userId } as any,
@@ -40,20 +44,22 @@ export class SubscriptionsService {
     return { initPoint };
   }
 
-  async subscribeWithStripe(userId: number, userEmail: string, userName: string) {
+  async subscribeWithStripe(
+    userId: number,
+    userEmail: string,
+    userName: string,
+  ) {
     const plan = await this.planRepo.findOneBy({ name: 'premium' });
     if (!plan) throw new NotFoundException('Plan premium no encontrado');
 
     let customer, stripeSubscription;
     try {
       customer = await this.stripeService.createCustomer(userEmail, userName);
-      console.log('STRIPE CUSTOMER:', customer.id);
 
       stripeSubscription = await this.stripeService.createSubscription(
         customer.id,
         process.env.STRIPE_PRICE_ID!,
       );
-      console.log('STRIPE SUBSCRIPTION:', stripeSubscription.id, 'STATUS:', stripeSubscription.status);
     } catch (err: any) {
       console.error('STRIPE ERROR:', err.type, err.message, err.raw?.message);
       throw err;
@@ -67,7 +73,10 @@ export class SubscriptionsService {
     });
     await this.subscriptionRepo.save(subscription);
 
-    const clientSecret = await this.stripeService.getPaymentIntentClientSecret(stripeSubscription.id);
+    const clientSecret = await this.stripeService.getPaymentIntentClientSecret(
+      stripeSubscription.id,
+    );
+
     return {
       subscriptionId: stripeSubscription.id,
       clientSecret,
@@ -86,9 +95,12 @@ export class SubscriptionsService {
     const subscription = await this.subscriptionRepo.findOne({
       where: { user: { id: userId } as any, status: SubscriptionStatus.ACTIVE },
     });
-    if (!subscription) throw new NotFoundException('No tenés una suscripción activa');
+    if (!subscription)
+      throw new NotFoundException('No tenés una suscripción activa');
 
-    await this.mercadopagoService.cancelPreapproval(subscription.mpPreapprovalId);
+    await this.mercadopagoService.cancelPreapproval(
+      subscription.mpPreapprovalId,
+    );
 
     subscription.status = SubscriptionStatus.CANCELLED;
     subscription.cancelledAt = new Date();
@@ -106,7 +118,8 @@ export class SubscriptionsService {
     });
     if (!subscription) throw new NotFoundException('Suscripción no encontrada');
 
-    const preapproval = await this.mercadopagoService.getPreapproval(preapprovalId);
+    const preapproval =
+      await this.mercadopagoService.getPreapproval(preapprovalId);
 
     if (preapproval.status === 'authorized') {
       subscription.status = SubscriptionStatus.ACTIVE;
@@ -130,7 +143,8 @@ export class SubscriptionsService {
     });
     if (!subscription) throw new NotFoundException('Suscripción no encontrada');
 
-    const stripeSub = await this.stripeService.getSubscription(stripeSubscriptionId);
+    const stripeSub =
+      await this.stripeService.getSubscription(stripeSubscriptionId);
 
     if (stripeSub.status === 'active' || stripeSub.status === 'trialing') {
       subscription.status = SubscriptionStatus.ACTIVE;
