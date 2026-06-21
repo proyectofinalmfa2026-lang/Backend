@@ -5,6 +5,7 @@ import {
   Param,
   Body,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 
 import { FollowersService } from './followers.service';
@@ -32,14 +33,9 @@ export class FollowersController {
     return this.followersService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.followersService.findOne(id);
-  }
-
   @Get('user/followers/:userId')
   getFollowers(
-    @Param('userId') userId: number,
+    @Param('userId', ParseIntPipe) userId: number,
   ) {
     return this.followersService.getFollowers(
       userId,
@@ -48,11 +44,16 @@ export class FollowersController {
 
   @Get('user/following/:userId')
   getFollowing(
-    @Param('userId') userId: number,
+    @Param('userId', ParseIntPipe) userId: number,
   ) {
     return this.followersService.getFollowing(
       userId,
     );
+  }
+
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.followersService.findOne(id);
   }
 
   @Delete(':id')
