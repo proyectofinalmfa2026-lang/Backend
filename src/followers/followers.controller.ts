@@ -14,18 +14,14 @@ import { CreateFollowerDto } from './dto/create-follower.dto';
 
 @Controller('followers')
 export class FollowersController {
-  constructor(
-    private readonly followersService: FollowersService,
-  ) {}
+  constructor(private readonly followersService: FollowersService) {}
 
   @Post()
   create(
     @Body()
     createFollowerDto: CreateFollowerDto,
   ) {
-    return this.followersService.create(
-      createFollowerDto,
-    );
+    return this.followersService.create(createFollowerDto);
   }
 
   @Get()
@@ -34,21 +30,13 @@ export class FollowersController {
   }
 
   @Get('user/followers/:userId')
-  getFollowers(
-    @Param('userId', ParseIntPipe) userId: number,
-  ) {
-    return this.followersService.getFollowers(
-      userId,
-    );
+  getFollowers(@Param('userId', ParseIntPipe) userId: number) {
+    return this.followersService.getFollowers(userId);
   }
 
   @Get('user/following/:userId')
-  getFollowing(
-    @Param('userId', ParseIntPipe) userId: number,
-  ) {
-    return this.followersService.getFollowing(
-      userId,
-    );
+  getFollowing(@Param('userId', ParseIntPipe) userId: number) {
+    return this.followersService.getFollowing(userId);
   }
 
   @Get(':id')
