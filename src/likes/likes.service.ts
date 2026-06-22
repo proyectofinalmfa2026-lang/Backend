@@ -109,6 +109,20 @@ async create(createLikeDto: CreateLikeDto) {
   };
 }
 
+  async findByUser(userId: number) {
+    return this.likeRepository.find({
+      where: { user: { id: userId } },
+      relations: { review: true },
+    });
+  }
+
+  async findByReview(reviewId: string) {
+    return this.likeRepository.find({
+      where: { review: { id: reviewId } },
+      relations: { user: true },
+    });
+  }
+
   findAll() {
     return this.likeRepository.find({
       relations: {

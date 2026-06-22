@@ -28,6 +28,16 @@ create(
     );
   }
 
+  @Get('user/:userId')
+  findByUser(@Param('userId') userId: string) {
+    return this.likesService.findByUser(+userId);
+  }
+
+  @Get('review/:reviewId')
+  findByReview(@Param('reviewId') reviewId: string) {
+    return this.likesService.findByReview(reviewId);
+  }
+
   @Get()
   findAll() {
     return this.likesService.findAll();
