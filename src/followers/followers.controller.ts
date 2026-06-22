@@ -6,10 +6,11 @@ import {
   Body,
   Delete,
   ParseIntPipe,
+  UseGuards,
 } from '@nestjs/common';
 
 import { FollowersService } from './followers.service';
-
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CreateFollowerDto } from './dto/create-follower.dto';
 
 @Controller('followers')
@@ -17,7 +18,8 @@ export class FollowersController {
   constructor(private readonly followersService: FollowersService) {}
 
   @Post()
-  create(
+@UseGuards(JwtAuthGuard)
+create(
     @Body()
     createFollowerDto: CreateFollowerDto,
   ) {
@@ -45,7 +47,8 @@ export class FollowersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+@UseGuards(JwtAuthGuard)
+remove(@Param('id') id: string) {
     return this.followersService.remove(id);
   }
 }

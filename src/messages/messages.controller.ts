@@ -30,17 +30,19 @@ create(
  );
 }
 
-  @Get()
-  findAll() {
-    return this.messagesService.findAll();
-  }
+  @UseGuards(JwtAuthGuard)
+@Get()
+findAll() {
+  return this.messagesService.findAll();
+}
 
-  @Get(':id')
-  findOne(
-    @Param('id') id: string,
-  ) {
-    return this.messagesService.findOne(id);
-  }
+  @UseGuards(JwtAuthGuard)
+@Get(':id')
+findOne(
+  @Param('id') id: string,
+) {
+  return this.messagesService.findOne(id);
+}
 
   @Get('conversation/:conversationId')
 @UseGuards(JwtAuthGuard)
