@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Put,
   Req,
   Res,
   UseGuards,
@@ -60,5 +61,15 @@ export class AuthController {
   async getProfile(@Req() req: any) {
     const result = await this.authService.getProfileResponse(req.user.id);
     return result;
+  }
+
+  @Put('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  async updateProfile(
+    @Req() req: any,
+    @Body() data: { favoriteGenres?: string[]; badges?: { id: string; label: string; color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan'; icon: string; requiredTier?: 'free' | 'premium' }[] },
+  ) {
+    return this.authService.updateProfile(req.user.id, data);
   }
 }

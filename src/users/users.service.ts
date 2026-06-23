@@ -111,6 +111,8 @@ export class UsersService {
       avgRating,
       followersCount,
       followingCount,
+      favoriteGenres: user.favoriteGenres ?? [],
+      badges: user.badges ?? [],
       featuredReviews: featuredReviews.map((r) => ({
   id: r.id,
   rating: r.rating,
@@ -197,6 +199,8 @@ export class UsersService {
       avgRating,
       followersCount,
       followingCount,
+      favoriteGenres: user.favoriteGenres ?? [],
+      badges: user.badges ?? [],
     };
   }
 

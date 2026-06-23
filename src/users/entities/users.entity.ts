@@ -73,6 +73,18 @@ export class User {
   })
   isPremium!: boolean;
 
+  @Column('simple-array', {
+    nullable: true,
+    default: [],
+  })
+  favoriteGenres!: string[];
+
+  @Column('simple-json', {
+    nullable: true,
+    default: [],
+  })
+  badges!: { id: string; label: string; color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan'; icon: string; requiredTier?: 'free' | 'premium' }[];
+
   @CreateDateColumn()
   createdAt!: Date;
 

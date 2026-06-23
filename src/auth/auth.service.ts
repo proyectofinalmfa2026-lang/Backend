@@ -191,8 +191,8 @@ export class AuthService {
       role: user.role,
       isPremium: user.isPremium,
       createdAt: user.createdAt,
-      favoriteGenres: [],
-      badges: [],
+      favoriteGenres: user.favoriteGenres ?? [],
+      badges: user.badges ?? [],
       stats: {
         moviesWatched: user.watchlists?.length ?? 0,
         reviews: user.reviews?.length ?? 0,
@@ -200,6 +200,19 @@ export class AuthService {
         avgRating: Math.round(avgRating * 10) / 10,
       },
     };
+  }
+
+  async updateProfile(
+    id: number,
+    data: { favoriteGenres?: string[]; badges?: { id: string; label: string; color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan'; icon: string; requiredTier?: 'free' | 'premium' }[] },
+  ) {
+    const user = await this.authRepository.findUserById(id);
+    if (!user) throw new UnauthorizedException('Usuario no encontrado');
+
+    if (data.favoriteGenres !== undefined) user.favoriteGenres = data.favoriteGenres;
+    if (data.badges !== undefined) user.badges = data.badges;
+
+    return this.authRepository.saveUser(user);
   }
 
   generateJwt(user: any) {
