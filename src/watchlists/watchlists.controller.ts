@@ -23,8 +23,6 @@ export class WatchlistsController {
 
   @Get('me')
   getMyWatchlist(@Req() req: any) {
-    console.log('ENTRO A WATCHLIST ME');
-    console.log(req.user);
     return this.watchlistsService.getMyWatchlist(req.user.id);
   }
   @Post()

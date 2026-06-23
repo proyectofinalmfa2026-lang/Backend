@@ -19,6 +19,18 @@ export class AuthService {
     private readonly notificationsService: NotificationsService,
 ) {}
 
+  private sanitizeUser(user: any) {
+    if (!user) return user;
+
+    const {
+      password,
+      googleId,
+      ...safeUser
+    } = user;
+
+    return safeUser;
+  }
+
   async signup(signupDto: SignupDto) {
     const {
       username,
@@ -67,14 +79,9 @@ export class AuthService {
       userId: newUser.id,
     });
 
-    const {
-      password: userPassword,
-      ...userWithoutPassword
-    } = newUser;
-
     return {
       message: 'Usuario registrado correctamente',
-      user: userWithoutPassword,
+      user: this.sanitizeUser(newUser),
     };
   }
 
@@ -106,12 +113,10 @@ export class AuthService {
 
     const token = this.generateJwt(user);
 
-    const { password: userPassword, ...userWithoutPassword } = user;
-
     return {
       message: 'Login exitoso',
       token,
-      user: userWithoutPassword,
+      user: this.sanitizeUser(user),
     };
   }
 
@@ -127,7 +132,7 @@ export class AuthService {
     let user = await this.authRepository.findUserByGoogleId(googleId);
 
     if (user) {
-      return user;
+      return this.sanitizeUser(user);
     }
 
     user = await this.authRepository.findUserByEmail(email);
@@ -139,7 +144,7 @@ export class AuthService {
         user.avatar = avatar;
       }
 
-      return this.authRepository.saveUser(user);
+      return this.sanitizeUser(await this.authRepository.saveUser(user));
     }
 
     const baseUsername = email.split('@')[0];
@@ -161,7 +166,7 @@ export class AuthService {
       avatar,
     });
 
-    return newUser;
+    return this.sanitizeUser(newUser);
   }
 
   async findUserById(id: number) {
@@ -212,7 +217,7 @@ export class AuthService {
     if (data.favoriteGenres !== undefined) user.favoriteGenres = data.favoriteGenres;
     if (data.badges !== undefined) user.badges = data.badges;
 
-    return this.authRepository.saveUser(user);
+    return this.sanitizeUser(await this.authRepository.saveUser(user));
   }
 
   generateJwt(user: any) {

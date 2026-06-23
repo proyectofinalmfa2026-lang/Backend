@@ -28,10 +28,6 @@ export class RealtimeGateway {
       userId,
       client.id,
     );
-
-    console.log(
-      `Usuario ${userId} conectado al chat`,
-    );
   }
 
   sendMessageToUser(
@@ -45,10 +41,6 @@ export class RealtimeGateway {
       this.server
         .to(socketId)
         .emit('newMessage', message);
-
-      console.log(
-        `Mensaje enviado en tiempo real a usuario ${userId}`,
-      );
     }
   }
 }

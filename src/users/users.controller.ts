@@ -108,9 +108,6 @@ getAdvancedStats(
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(@UploadedFile() file: any, @Req() req: any) {
-    console.log('ENTRO A AVATAR');
-    console.log(req.user);
-
     const result = await this.cloudinaryService.uploadImage(file);
 
     const updatedUser = await this.usersService.updateAvatar(

@@ -19,8 +19,6 @@ export class WebhookStripeController {
   @Post()
   @HttpCode(200)
   async handleWebhook(@Body() body: any) {
-    console.log('WEBHOOK STRIPE BODY:', JSON.stringify(body));
-
     const relevantEvents = [
       'customer.subscription.updated',
       'customer.subscription.deleted',

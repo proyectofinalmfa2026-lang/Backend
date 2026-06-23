@@ -52,7 +52,7 @@ export class AuthController {
     const frontendUrl =
       this.configService.get<string>('FRONTEND_URL') || 'http://localhost:3000';
 
-    return res.redirect(`${frontendUrl}/auth/success?token=${token}`);
+    return res.redirect(`${frontendUrl}/auth/success#token=${token}`);
   }
 
   @Get('profile')

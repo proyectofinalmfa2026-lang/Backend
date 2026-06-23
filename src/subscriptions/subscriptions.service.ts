@@ -61,7 +61,7 @@ export class SubscriptionsService {
         process.env.STRIPE_PRICE_ID!,
       );
     } catch (err: any) {
-      console.error('STRIPE ERROR:', err.type, err.message, err.raw?.message);
+      console.error('STRIPE ERROR:', err.type, err.message);
       throw err;
     }
 
