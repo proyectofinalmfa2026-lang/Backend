@@ -58,15 +58,16 @@ export class CommentsService {
 
     const savedComment = await this.commentRepository.save(comment);
 
-    // 🧠 SAFE: evitar crash si review.user no existe
-    const reviewOwnerId = review?.user?.id;
-
-    if (reviewOwnerId && reviewOwnerId !== user.id) {
-      await this.notificationsService.create({
-        title: 'Nuevo comentario',
-        message: `${user.username} comentó tu reseña`,
-        userId: reviewOwnerId,
-      });
+    if (review.user && review.user.id !== user.id) {
+      try {
+        await this.notificationsService.create({
+          title: 'Nuevo comentario',
+          message: `${user.username} comentó tu reseña`,
+          userId: review.user.id,
+        });
+      } catch {
+        // no romper el flujo si la notificación falla
+      }
     }
 
     return savedComment;
