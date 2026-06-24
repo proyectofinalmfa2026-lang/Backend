@@ -64,12 +64,26 @@ export class AuthController {
   }
 
   @Put('profile')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  async updateProfile(
-    @Req() req: any,
-    @Body() data: { favoriteGenres?: string[]; badges?: { id: string; label: string; color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan'; icon: string; requiredTier?: 'free' | 'premium' }[] },
-  ) {
-    return this.authService.updateProfile(req.user.id, data);
-  }
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+async updateProfile(
+  @Req() req: any,
+  @Body()
+  data: {
+    avatar?: string;
+    favoriteGenres?: string[];
+    badges?: {
+      id: string;
+      label: string;
+      color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan';
+      icon: string;
+      requiredTier?: 'free' | 'premium';
+    }[];
+  },
+) {
+  return this.authService.updateProfile(
+    req.user.id,
+    data,
+  );
+}
 }
