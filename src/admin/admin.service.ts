@@ -33,29 +33,25 @@ export class AdminService {
 
   async getDashboardStats() {
     const users = await this.userRepository.count();
-
-    const premiumUsers = await this.userRepository.count({
-      where: {
-        isPremium: true,
-      },
-    });
-
+    const premiumUsers = await this.userRepository.count({ where: { isPremium: true } });
     const movies = await this.movieRepository.count();
-
     const reviews = await this.reviewRepository.count();
-
     const comments = await this.commentRepository.count();
-
     const likes = await this.likeRepository.count();
 
-    return {
-      users,
-      premiumUsers,
-      movies,
-      reviews,
-      comments,
-      likes,
-    };
+    const recentUsers = await this.userRepository.find({
+      order: { createdAt: 'DESC' },
+      take: 5,
+      select: { id: true, username: true, name: true, role: true, isPremium: true, createdAt: true },
+    });
+
+    const recentReviews = await this.reviewRepository.find({
+      relations: { user: true, movie: true },
+      order: { createdAt: 'DESC' },
+      take: 5,
+    });
+
+    return { users, premiumUsers, movies, reviews, comments, likes, recentUsers, recentReviews };
   }
   
   async getAllUsers() {
@@ -223,23 +219,46 @@ async getAllComments() {
   }));
 }
 
-async deleteComment(id: string) {
-  const comment = await this.commentRepository.findOne({
-    where: {
-      id,
-    },
-  });
+  async deleteComment(id: string) {
+    const comment = await this.commentRepository.findOne({
+      where: {
+        id,
+      },
+    });
 
-  if (!comment) {
-    throw new NotFoundException(
-      'Comentario no encontrado',
-    );
+    if (!comment) {
+      throw new NotFoundException(
+        'Comentario no encontrado',
+      );
+    }
+
+    await this.commentRepository.remove(comment);
+
+    return {
+      message: 'Comentario eliminado correctamente',
+    };
   }
 
-  await this.commentRepository.remove(comment);
+  async getUserDetail(id: number) {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      relations: { reviews: true },
+      select: {
+        id: true, username: true, name: true, email: true,
+        bio: true, avatar: true, role: true, isPremium: true,
+        favoriteGenres: true, badges: true, createdAt: true,
+      },
+    });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    const { reviews, ...rest } = user;
+    return { ...rest, reviewsCount: reviews?.length ?? 0 };
+  }
 
-  return {
-    message: 'Comentario eliminado correctamente',
-  };
-}
+  async updateUserProfile(id: number, dto: any) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) throw new NotFoundException('Usuario no encontrado');
+    Object.assign(user, dto);
+    await this.userRepository.save(user);
+    return { message: 'Perfil actualizado correctamente' };
+  }
 }

@@ -84,4 +84,17 @@ deleteComment(
 ) {
   return this.adminService.deleteComment(id);
 }
+
+@Get('users/:id')
+getUser(@Param('id', ParseIntPipe) id: number) {
+  return this.adminService.getUserDetail(id);
+}
+
+@Patch('users/:id/profile')
+updateUserProfile(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() body: any,
+) {
+  return this.adminService.updateUserProfile(id, body);
+}
 }

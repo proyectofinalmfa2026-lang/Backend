@@ -72,4 +72,5 @@ export class AuthController {
   ) {
     return this.authService.updateProfile(req.user.id, data);
   }
+
 }
