@@ -64,6 +64,7 @@ export class AuthController {
   }
 
   @Put('profile')
+<<<<<<< HEAD
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async updateProfile(
@@ -73,4 +74,28 @@ export class AuthController {
     return this.authService.updateProfile(req.user.id, data);
   }
 
+=======
+@UseGuards(JwtAuthGuard)
+@ApiBearerAuth()
+async updateProfile(
+  @Req() req: any,
+  @Body()
+  data: {
+    avatar?: string;
+    favoriteGenres?: string[];
+    badges?: {
+      id: string;
+      label: string;
+      color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan';
+      icon: string;
+      requiredTier?: 'free' | 'premium';
+    }[];
+  },
+) {
+  return this.authService.updateProfile(
+    req.user.id,
+    data,
+  );
+}
+>>>>>>> 5022be9a7440a671baa0c492a87dd873a96850b6
 }

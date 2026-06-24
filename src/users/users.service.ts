@@ -291,7 +291,7 @@ export class UsersService {
     return this.usersRepository.save(user);
   }
 
-  async updateAvatar(userId: number, avatarUrl: string) {
+  async updateAvatar(userId: number, avatar: string) {
     const user = await this.usersRepository.findOne({
       where: { id: userId },
     });
@@ -300,7 +300,7 @@ export class UsersService {
       throw new Error('User not found');
     }
 
-    user.avatar = avatarUrl;
+    user.avatar = avatar;
 
     return this.usersRepository.save(user);
   }
