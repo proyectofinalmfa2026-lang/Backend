@@ -10,6 +10,8 @@ import {
   Req,
   UseGuards,
   Query,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 
 import { ApiBearerAuth, ApiBody, ApiConsumes } from '@nestjs/swagger';
@@ -108,16 +110,27 @@ getAdvancedStats(
   })
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(@UploadedFile() file: any, @Req() req: any) {
-    const result = await this.cloudinaryService.uploadImage(file);
+    if (!file) {
+      throw new BadRequestException('Archivo no proporcionado');
+    }
+
+    let result: any;
+    try {
+      result = await this.cloudinaryService.uploadImage(file);
+    } catch {
+      throw new InternalServerErrorException(
+        'Error al subir la imagen. Verificá que Cloudinary esté configurado.',
+      );
+    }
 
     const updatedUser = await this.usersService.updateAvatar(
       req.user.id,
-      (result as any).secure_url,
+      result.secure_url,
     );
 
     return {
       message: 'Avatar actualizado correctamente',
-      avatar: (result as any).secure_url,
+      avatar: result.secure_url,
       user: updatedUser,
     };
   }
