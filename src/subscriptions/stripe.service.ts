@@ -35,6 +35,22 @@ export class StripeService {
     return this.stripe.subscriptions.retrieve(subscriptionId);
   }
 
+  async getSubscriptionWithPaymentStatus(subscriptionId: string): Promise<{ subscription: any; paymentSucceeded: boolean }> {
+    const subscription = await this.stripe.subscriptions.retrieve(subscriptionId);
+    let paymentSucceeded = false;
+    if (subscription.latest_invoice) {
+      const invoiceId = typeof subscription.latest_invoice === 'string'
+        ? subscription.latest_invoice
+        : subscription.latest_invoice.id;
+      const invoice = await this.stripe.invoices.retrieve(invoiceId, { expand: ['payment_intent'] });
+      const paymentIntent = (invoice as any).payment_intent;
+      if (paymentIntent && paymentIntent.status === 'succeeded') {
+        paymentSucceeded = true;
+      }
+    }
+    return { subscription, paymentSucceeded };
+  }
+
   async getPaymentIntentClientSecret(
     subscriptionId: string,
   ): Promise<string | null> {

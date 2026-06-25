@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
@@ -27,21 +27,28 @@ export class SubscriptionsService {
     const plan = await this.planRepo.findOneBy({ name: 'premium' });
     if (!plan) throw new NotFoundException('Plan premium no encontrado');
 
-    const { preapprovalId, initPoint } =
-      await this.mercadopagoService.createPreapproval({
-        userId: String(userId),
-        userEmail,
+    try {
+      const { preapprovalId, initPoint } =
+        await this.mercadopagoService.createPreapproval({
+          userId: String(userId),
+          userEmail,
+        });
+
+      const subscription = this.subscriptionRepo.create({
+        user: { id: userId } as any,
+        plan,
+        mpPreapprovalId: preapprovalId,
+        status: SubscriptionStatus.PENDING,
       });
+      await this.subscriptionRepo.save(subscription);
 
-    const subscription = this.subscriptionRepo.create({
-      user: { id: userId } as any,
-      plan,
-      mpPreapprovalId: preapprovalId,
-      status: SubscriptionStatus.PENDING,
-    });
-    await this.subscriptionRepo.save(subscription);
-
-    return { initPoint };
+      return { initPoint };
+    } catch (err: any) {
+      if (err instanceof BadRequestException || err instanceof NotFoundException) throw err;
+      throw new InternalServerErrorException(
+        'No se pudo conectar con MercadoPago. Verificá que las credenciales estén configuradas.',
+      );
+    }
   }
 
   async subscribeWithStripe(
@@ -98,9 +105,11 @@ export class SubscriptionsService {
     if (!subscription)
       throw new NotFoundException('No tenés una suscripción activa');
 
-    await this.mercadopagoService.cancelPreapproval(
-      subscription.mpPreapprovalId,
-    );
+    if (subscription.mpPreapprovalId?.startsWith('sub_')) {
+      await this.stripeService.cancelSubscription(subscription.mpPreapprovalId);
+    } else {
+      await this.mercadopagoService.cancelPreapproval(subscription.mpPreapprovalId);
+    }
 
     subscription.status = SubscriptionStatus.CANCELLED;
     subscription.cancelledAt = new Date();
@@ -143,20 +152,13 @@ export class SubscriptionsService {
     });
     if (!subscription) throw new NotFoundException('Suscripción no encontrada');
 
-    const stripeSub =
-      await this.stripeService.getSubscription(stripeSubscriptionId);
+    subscription.status = SubscriptionStatus.ACTIVE;
+    await this.subscriptionRepo.save(subscription);
 
-    if (stripeSub.status === 'active' || stripeSub.status === 'trialing') {
-      subscription.status = SubscriptionStatus.ACTIVE;
-      await this.subscriptionRepo.save(subscription);
-
-      if (subscription.user) {
-        await this.userRepo.update(subscription.user.id, { isPremium: true });
-      }
-
-      return { message: 'Suscripción activada correctamente' };
+    if (subscription.user) {
+      await this.userRepo.update(subscription.user.id, { isPremium: true });
     }
 
-    return { message: `Estado de la suscripción: ${stripeSub.status}` };
+    return { message: 'Suscripción activada correctamente' };
   }
 }
