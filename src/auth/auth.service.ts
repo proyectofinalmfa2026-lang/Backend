@@ -210,63 +210,69 @@ export class AuthService {
   }
 
   async updateProfile(
-  id: number,
-  data: {
-    avatar?: string;
-    favoriteGenres?: string[];
-    badges?: {
-      id: string;
-      label: string;
-      color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan';
-      icon: string;
-      requiredTier?: 'free' | 'premium';
-    }[];
-  },
-) {
-  const user = await this.authRepository.findUserById(id);
+    id: number,
+    data: {
+      avatar?: string | null;
+      favoriteGenres?: string[];
+      badges?: {
+        id: string;
+        label: string;
+        color: 'gold' | 'blue' | 'green' | 'purple' | 'rose' | 'cyan';
+        icon: string;
+        requiredTier?: 'free' | 'premium';
+      }[];
+    },
+  ) {
+    const user = await this.authRepository.findUserById(id);
 
-  if (!user) {
-    throw new UnauthorizedException(
-      'Usuario no encontrado',
+    if (!user) {
+      throw new UnauthorizedException(
+        'Usuario no encontrado',
+      );
+    }
+
+    if (data.avatar !== undefined) {
+      if (data.avatar === null) {
+        user.avatar = null;
+      } else if (data.avatar.startsWith('http')) {
+        user.avatar = data.avatar;
+      } else {
+        const availableAvatars = [
+          ...FREE_AVATARS,
+          ...PREMIUM_AVATARS,
+        ];
+
+        if (!availableAvatars.includes(data.avatar)) {
+          throw new BadRequestException(
+            'Avatar inválido',
+          );
+        }
+
+        if (
+          PREMIUM_AVATARS.includes(data.avatar) &&
+          !user.isPremium
+        ) {
+          throw new ForbiddenException(
+            'Este avatar requiere una suscripción Premium',
+          );
+        }
+
+        user.avatar = data.avatar;
+      }
+    }
+
+    if (data.favoriteGenres !== undefined) {
+      user.favoriteGenres = data.favoriteGenres;
+    }
+
+    if (data.badges !== undefined) {
+      user.badges = data.badges;
+    }
+
+    return this.sanitizeUser(
+      await this.authRepository.saveUser(user),
     );
   }
-
-  if (data.avatar !== undefined) {
-    const availableAvatars = [
-      ...FREE_AVATARS,
-      ...PREMIUM_AVATARS,
-    ];
-
-    if (!availableAvatars.includes(data.avatar)) {
-      throw new BadRequestException(
-        'Avatar inválido',
-      );
-    }
-
-    if (
-      PREMIUM_AVATARS.includes(data.avatar) &&
-      !user.isPremium
-    ) {
-      throw new ForbiddenException(
-        'Este avatar requiere una suscripción Premium',
-      );
-    }
-
-    user.avatar = data.avatar;
-  }
-
-  if (data.favoriteGenres !== undefined) {
-    user.favoriteGenres = data.favoriteGenres;
-  }
-
-  if (data.badges !== undefined) {
-    user.badges = data.badges;
-  }
-
-  return this.sanitizeUser(
-    await this.authRepository.saveUser(user),
-  );
-}
 
   generateJwt(user: any) {
   const payload = {

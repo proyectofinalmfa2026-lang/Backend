@@ -70,7 +70,7 @@ export class AuthController {
     @Req() req: any,
     @Body()
     data: {
-      avatar?: string;
+      avatar?: string | null;
       favoriteGenres?: string[];
       badges?: {
         id: string;
