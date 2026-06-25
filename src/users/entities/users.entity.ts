@@ -9,6 +9,7 @@ import {
 
 import { Review } from '../../reviews/entities/reviews.entity';
 import { Watchlist } from '../../watchlists/entities/watchlists.entity';
+import { Watched } from '../../watched/entities/watched.entity';
 import { Comment } from '../../comments/entities/comments.entity';
 import { Like } from '../../likes/entities/likes.entity';
 import { Notification } from '../../notifications/entities/notifications.entity';
@@ -106,6 +107,12 @@ subscriptions!: Subscription[];
     (watchlist) => watchlist.user,
   )
   watchlists!: Watchlist[];
+
+  @OneToMany(
+    () => Watched,
+    (watched) => watched.user,
+  )
+  watched!: Watched[];
 
   @OneToMany(
     () => Comment,

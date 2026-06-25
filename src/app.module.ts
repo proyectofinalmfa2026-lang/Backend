@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { WatchlistsModule } from './watchlists/watchlists.module';
+import { WatchedModule } from './watched/watched.module';
 import { MoviesModule } from './movies/movies.module';
 import { CommentsModule } from './comments/comments.module';
 import { LikesModule } from './likes/likes.module';
@@ -25,6 +26,7 @@ import { AdminModule } from './admin/admin.module';
     ReviewsModule,
     CloudinaryModule,
     WatchlistsModule,
+    WatchedModule,
     MoviesModule,
     CommentsModule,
     LikesModule,
