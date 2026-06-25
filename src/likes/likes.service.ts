@@ -95,11 +95,13 @@ async create(createLikeDto: CreateLikeDto) {
     review.user &&
     review.user.id !== user.id
   ) {
-    await this.notificationsService.create({
-      title: 'Nuevo like',
-      message: `${user.username} le dio like a tu reseña`,
-      userId: review.user.id,
-    });
+    try {
+      await this.notificationsService.create({
+        title: 'Nuevo like',
+        message: `${user.username} le dio like a tu reseña`,
+        userId: review.user.id,
+      });
+    } catch {}
   }
 
   return {
